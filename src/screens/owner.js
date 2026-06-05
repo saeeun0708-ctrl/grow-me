@@ -35,7 +35,7 @@ export async function renderOwner(app) {
     charSub = "거의 다 자랐어요! 👀";
   } else {
     progLabel = "완전히 자랐어요!";
-    nextLabel = "원하는 만큼 먹이를 더 받을 수 있어요";
+    nextLabel = "원한다면 얼마든지 먹이를 더 받을 수 있어요";
   }
   const progPct = (stage / 3) * 100;
 

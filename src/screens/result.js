@@ -97,7 +97,7 @@ export async function renderResult(app) {
                 .slice(0, 3)
                 .map((f) => `<div class="row"><span class="nm">●●●</span><span class="ws">${f.words.slice(0, 3).join(", ")} …</span></div>`)
                 .join("")}</div>
-               <button class="btn" id="unlock" style="margin-top:14px">전체 보기 · 700원</button>`
+               <button class="btn" id="unlock" style="margin-top:14px">전체 보기 · 990원</button>`
         }
       </div>
 
@@ -111,7 +111,7 @@ export async function renderResult(app) {
   const unlockBtn = app.querySelector("#unlock");
   if (unlockBtn)
     unlockBtn.onclick = async () => {
-      if (confirm("(더미 결제) 700원을 결제하고 전체를 볼까요?")) {
+      if (confirm("(더미 결제) 990원을 결제하고 전체를 볼까요?")) {
         await db.setUnlocked(true);
         renderResult(app);
       }
