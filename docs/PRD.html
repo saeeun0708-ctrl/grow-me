@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나를 키워줘 — PRD</title>
+<style>
+  :root{
+    --bg:#fdf7ff; --card:#ffffff; --ink:#2b2240; --muted:#7a7090;
+    --accent:#a66bff; --accent2:#ff8fcf; --line:#ece4f5; --soft:#f6effd;
+    --good:#36c08a;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+    background:linear-gradient(160deg,#fdf7ff,#fef0f7); color:var(--ink); line-height:1.7;
+  }
+  .wrap{max-width:880px; margin:0 auto; padding:0 20px 80px}
+  header.hero{
+    text-align:center; padding:64px 24px 40px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff; border-radius:0 0 36px 36px; box-shadow:0 12px 40px rgba(166,107,255,.25);
+  }
+  header.hero .egg{font-size:54px; display:block; margin-bottom:8px}
+  header.hero h1{margin:0; font-size:40px; letter-spacing:-1px}
+  header.hero p{margin:12px auto 0; max-width:520px; font-size:16px; opacity:.95}
+  .badge{display:inline-block; margin-top:18px; padding:6px 16px; background:rgba(255,255,255,.2);
+    border:1px solid rgba(255,255,255,.4); border-radius:999px; font-size:13px}
+  section{
+    background:var(--card); margin-top:24px; padding:28px 30px; border-radius:22px;
+    border:1px solid var(--line); box-shadow:0 6px 24px rgba(120,90,180,.06);
+  }
+  h2{font-size:23px; margin:0 0 4px; display:flex; align-items:center; gap:10px}
+  h2 .n{display:inline-grid; place-items:center; width:30px; height:30px; border-radius:9px;
+    background:var(--soft); color:var(--accent); font-size:15px; font-weight:700}
+  h3{font-size:17px; margin:22px 0 8px; color:var(--accent)}
+  p,li{font-size:15px}
+  table{width:100%; border-collapse:collapse; margin:14px 0; font-size:14px}
+  th,td{border:1px solid var(--line); padding:9px 12px; text-align:left; vertical-align:top}
+  th{background:var(--soft); color:var(--ink); font-weight:600}
+  tr:nth-child(even) td{background:#fcfaff}
+  code{background:var(--soft); color:#8a4bd6; padding:2px 6px; border-radius:6px; font-size:13px}
+  pre{background:#2b2240; color:#f4ecff; padding:18px; border-radius:14px; overflow:auto; font-size:13px; line-height:1.55}
+  pre code{background:none; color:inherit; padding:0}
+  .pill{display:inline-block; background:var(--soft); color:var(--accent); border:1px solid var(--line);
+    padding:4px 12px; border-radius:999px; font-size:13px; margin:3px 4px 3px 0}
+  blockquote{margin:14px 0; padding:12px 18px; background:var(--soft); border-left:4px solid var(--accent);
+    border-radius:0 12px 12px 0; color:#5a4b75}
+  .flow{display:grid; gap:10px; margin:14px 0}
+  .flow .step{display:flex; gap:12px; align-items:flex-start; background:#fcfaff; border:1px solid var(--line);
+    border-radius:14px; padding:12px 14px}
+  .flow .step b{display:inline-grid; place-items:center; min-width:26px; height:26px; border-radius:8px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; font-size:13px}
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin:10px 0}
+  .free{color:var(--good); font-weight:700}
+  .lock{color:#c9a0ff; font-weight:700}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr}}
+  .stage-card{background:#fcfaff; border:1px solid var(--line); border-radius:16px; padding:16px; text-align:center}
+  .stage-card .emo{font-size:34px}
+  footer{text-align:center; color:var(--muted); font-size:13px; margin-top:40px}
+</style>
+</head>
+<body>
+<header class="hero">
+  <span class="egg">🥚→🐣→🦄</span>
+  <h1>나를 키워줘</h1>
+  <p>지인들이 골라준 단어로 내 캐릭터를 키우고,<br>"남이 보는 나"를 확인·자랑하는 바이럴 모바일 웹</p>
+  <span class="badge">PRD v1.0 · 2026-06-05</span>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <h2><span class="n">1</span> 제품 개요</h2>
+    <blockquote>"친구들 눈에 비친 진짜 내 모습을, 귀여운 캐릭터 하나로 보여줘."</blockquote>
+    <ul>
+      <li>사용자(주인)는 자신만의 <b>공유 링크</b>를 받는다.</li>
+      <li>지인이 들어와 <b>이름을 적고</b>, 어울리는 <b>제시어 7개를 선택</b>해 <b>먹이주기</b>를 완료한다.</li>
+      <li>먹이를 받을 때마다 캐릭터가 성장하고, <b>가장 많이 받은 제시어의 캐릭터</b>로 변신한다.</li>
+      <li>3단계까지 자라면 <b>독립시키기</b>로 결과를 확정하고, <b>인스타 자랑용 이미지</b>로 저장한다.</li>
+    </ul>
+    <h3>북극성 지표</h3>
+    <p>🚀 <b>K-팩터 ≥ 1</b> — 결과 이미지 공유 → 본 사람이 "나도 해볼래" → 신규 가입 루프.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">2</span> 타겟 & 핵심 동기</h2>
+    <table>
+      <tr><th>주 타겟</th><td>10대 후반~20대 (SNS 자기표현·테스트 콘텐츠 친숙)</td></tr>
+      <tr><th>핵심 동기</th><td>"남들이 나를 어떻게 볼까?" 호기심 + 자랑·공유 욕구</td></tr>
+      <tr><th>사용 맥락</th><td>인스타 스토리, 카톡 단톡방, 친구들 사이 유행</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2><span class="n">3</span> 핵심 사용자 흐름</h2>
+    <h3>👤 주인 (Owner)</h3>
+    <div class="flow">
+      <div class="step"><b>1</b><span>링크 접속 → 간편 로그인 → 내 캐릭터 생성 (1단계, 작은 알)</span></div>
+      <div class="step"><b>2</b><span>내 공유 링크 복사 → 카톡/스토리/DM으로 뿌리기</span></div>
+      <div class="step"><b>3</b><span>지인이 먹이 줄 때마다 성장 / 화면 갱신</span></div>
+      <div class="step"><b>4</b><span>3단계 도달 → 원할 때 [독립시키기]</span></div>
+      <div class="step"><b>5</b><span>결과 화면(1~5위 + 받은 수) → 이미지 저장 → SNS 자랑</span></div>
+      <div class="step"><b>6</b><span>(선택) 상세 언락 결제 → 누가 무슨 제시어 골랐는지 전부 확인</span></div>
+    </div>
+    <h3>🙋 지인 (Sender) — 로그인 불필요, 마찰 최소화</h3>
+    <div class="flow">
+      <div class="step"><b>1</b><span>주인 링크 접속 → "○○님에게 먹이주기" 화면</span></div>
+      <div class="step"><b>2</b><span>내 이름 입력 (예: "단짝 민지")</span></div>
+      <div class="step"><b>3</b><span>제시어 칩 중 7개 선택 (7개 채워야 완료 활성화)</span></div>
+      <div class="step"><b>4</b><span>[먹이주기] → 완료 애니메이션 → "나도 만들기" CTA</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">4</span> 성장 규칙</h2>
+    <div class="grid2">
+      <div class="stage-card"><div class="emo">🥚</div><b>1단계</b><br>먹이 0회<br><span class="muted">공통 알 형태</span></div>
+      <div class="stage-card"><div class="emo">🐣</div><b>2단계</b><br>먹이 1~2회<br><span class="muted">특징이 살짝</span></div>
+    </div>
+    <div style="margin-top:14px" class="stage-card"><div class="emo">🦄</div><b>3단계</b> · 먹이 3회 이상 · 1위 카테고리의 <b>완성형 캐릭터</b> (이후 외형 고정, 카운트는 누적)</div>
+    <ul>
+      <li><b>캐릭터 결정</b>: 누적 제시어를 카테고리별 합산 → 1위 카테고리의 캐릭터로 확정.</li>
+      <li><b>동점 시</b>: 먼저 1위 도달한 카테고리 우선.</li>
+      <li><b>중복 방지</b>: 같은 기기/세션 중복 제출 제한.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="n">5</span> 캐릭터 8종 &amp; 제시어 매핑</h2>
+    <blockquote>캐릭터는 <b>클로드 디자인에서 별도 제작</b>. 공통 톤: 동글동글, 단순, 파스텔, 귀여움.</blockquote>
+    <table>
+      <tr><th>캐릭터</th><th>한 줄 소개</th><th>3단계 특징</th></tr>
+      <tr><td>똑똑이 <code>brain</code></td><td><b>뇌가 섹시해</b><br><span class="muted">지성</span></td><td>동그란 안경 쓴 지적인 표정</td></tr>
+      <tr><td>멋쟁이 <code>charm</code></td><td><b>눈을 뗄 수 없는 비주얼</b><br><span class="muted">외모·매력</span></td><td>반짝이는 눈, 자신감 미소</td></tr>
+      <tr><td>불꽃이 <code>passion</code></td><td><b>열정! 식지 않는 에너자이저</b><br><span class="muted">열정</span></td><td>머리 위 작은 불꽃, 힘찬 표정</td></tr>
+      <tr><td>러블리 <code>cute</code></td><td><b>사랑받는게 일인 걸</b><br><span class="muted">귀여움</span></td><td>가장 작고 동글, 발그레한 볼</td></tr>
+      <tr><td>인기쟁이 <code>fun</code></td><td><b>어디든 빠지면 섭하지</b><br><span class="muted">유머·유쾌</span></td><td>익살스러운 윙크, 메롱</td></tr>
+      <tr><td>포근이 <code>warm</code></td><td><b>곁에 있으면 마음이 놓여</b><br><span class="muted">다정</span></td><td>부드러운 미소, 포근한 인상</td></tr>
+      <tr><td>재주꾼 <code>talent</code></td><td><b>못하는 걸 찾는 게 더 빨라</b><br><span class="muted">만능</span></td><td>소품(셰프모자/마이크) 든 만능</td></tr>
+      <tr><td>신비 <code>mystery</code></td><td><b>알수록 더 궁금해</b><br><span class="muted">미스터리</span></td><td>반쯤 감은 눈, 묘한 분위기</td></tr>
+    </table>
+    <h3>제시어 전체 (카테고리당 22개)</h3>
+    <p><b>똑똑이</b> · 똑똑해, 지적이야, 논리적이야, 꼼꼼해, 계획적이야, 분석을잘해, 기억력좋아, 현명해, 똑부러져, 판단력좋아, 집중력좋아, 효율적이야, 공부잘해, 박학다식, 통찰력있어, 문제해결사, 전략가, 차근차근해, 정확해, 깊이있어, 핵심을잘짚어, 설명을잘해, 능력자</p>
+    <p><b>멋쟁이</b> · 예뻐, 멋있어, 매력적이야, 섹시해, 스타일좋아, 잘생겼어, 패션센스좋아, 비율좋아, 눈빛이매력적, 미소가예뻐, 분위기미인, 화려해, 도도해, 세련됐어, 옷잘입어, 피부좋아, 모델같아, 볼매, 첫인상좋아, 빛이나, 자기관리잘해, 향기로워</p>
+    <p><b>불꽃이</b> · 열정적이야, 끈기있어, 카리스마있어, 도전적이야, 리더십있어, 추진력좋아, 성실해, 부지런해, 노력파, 야망있어, 에너지넘쳐, 열심히해, 책임감강해, 포기를몰라, 주도적이야, 목표지향적, 활동적이야, 패기있어, 자신감넘쳐, 승부욕강해, 행동파, 멋지게해내</p>
+    <p><b>러블리</b> · 귀여워, 사랑스러워, 청순해, 순수해, 애교많아, 깜찍해, 발랄해, 해맑아, 천진난만, 보호본능자극, 동안이야, 작고소중해, 미소가천사, 토끼같아, 강아지같아, 애기같아, 방긋방긋, 말랑말랑, 사랑둥이, 귀염뽀짝, 베이비페이스, 포실포실</p>
+    <p><b>인기쟁이</b> · 재미있어, 허당이야, 재치있어, 유쾌해, 웃겨, 분위기메이커, 드립을잘쳐, 텐션높아, 장난꾸러기, 같이있으면즐거워, 웃음많아, 위트있어, 예측불가, 반전매력, 능청스러워, 핵잼이야, 리액션좋아, 흥부자, 깐족깐족, 개그욕심</p>
+    <p><b>포근이</b> · 친절해, 다정해, 차분해, 배려심깊어, 잘들어줘, 따뜻해, 착해, 포근해, 정이많아, 공감을잘해, 챙겨줘, 편안해, 인내심많아, 마음이넓어, 위로를잘해, 든든해, 믿음직해, 헌신적이야, 다정다감, 항상웃어줘, 곁에있고싶어, 안정감있어</p>
+    <p><b>재주꾼</b> · 요리왕, 노래잘해, 다재다능, 손재주좋아, 못하는게없어, 그림잘그려, 춤잘춰, 운동신경좋아, 글잘써, 만들기왕, 금손이야, 재능부자, 뭐든잘해, 게임잘해, 악기다뤄, 사진잘찍어, 정리의달인, 척척박사, 멀티플레이어, 센스만점, 일잘러, 손이빨라</p>
+    <p><b>신비</b> · 신비로워, 독특해, 분위기있어, 알수없어, 신비주의, 개성있어, 미스터리해, 속을모르겠어, 비밀스러워, 특별해, 아우라있어, 무드있어, 예술가같아, 자유로운영혼, 고독해보여, 깊은눈빛, 남들과달라, 시크해, 묘한매력, 한끗다름, 범접불가, 엉뚱해, 4차원, 조용한</p>
+    <p class="muted">※ 1단계는 8종 공통 알. 2단계는 3단계 특징이 절반만 드러난 형태로 통일.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">6</span> 결과 화면 &amp; 공유 (바이럴 핵심)</h2>
+    <h3>무료로 보이는 것</h3>
+    <div class="chips">
+      <span class="pill">확정 캐릭터</span><span class="pill">1~5위 제시어</span>
+      <span class="pill">각 받은 횟수</span><span class="pill">총 먹이 수</span>
+    </div>
+    <h3>결과 이미지 저장</h3>
+    <ul>
+      <li>인스타 최적: <b>스토리 1080×1920</b> / <b>피드 1080×1350</b></li>
+      <li>앱이 직접 예쁜 카드 생성(html-to-image) → <b>앱 이름·로고 워터마크</b> = 자연 광고</li>
+    </ul>
+    <h3>독립시키기</h3>
+    <p>3단계부터 활성화. 누르면 더 이상 먹이 못 받고 결과 고정 → 자랑·공유의 최종 형태.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">7</span> 수익화 — 상세 결과 언락</h2>
+    <table>
+      <tr><th>구분</th><th>무료</th><th>결제(언락)</th></tr>
+      <tr><td>1~5위 제시어</td><td class="free">✓</td><td class="free">✓</td></tr>
+      <tr><td>전체 제시어 분포(6위 이하)</td><td>✕</td><td class="lock">✓</td></tr>
+      <tr><td><b>누가</b> 어떤 제시어를 골랐는지(이름별)</td><td>✕</td><td class="lock">✓</td></tr>
+    </table>
+    <blockquote>결제 트리거: "누가 나를 똑똑하다고 했을까? 👀" → 블러된 이름 리스트 → [전체 보기 결제]<br>
+    가격 초안 <b>₩700</b> · 결제 <b>토스페이먼츠/페이플</b></blockquote>
+  </section>
+
+  <section>
+    <h2><span class="n">8</span> 데이터 모델 (Supabase)</h2>
+<pre><code>users
+  id, auth_provider, provider_user_id, nickname,
+  share_slug,        -- 공유 링크용 고유 슬러그
+  character_code,    -- 확정 캐릭터 (null=미확정)
+  stage,             -- 1 | 2 | 3
+  is_independent,    -- 독립 여부
+  is_unlocked,       -- 상세 언락 결제 여부
+  created_at
+
+feedbacks            -- 먹이 1회 = 1 row
+  id, owner_user_id(fk),
+  sender_name,       -- 지인 입력 이름
+  selected_words,    -- text[] 제시어 7개
+  created_at</code></pre>
+    <p>캐릭터 결정 = <code>selected_words</code>를 카테고리 매핑해 합산 → 최댓값 카테고리. 단계 = feedback 수(0→1, 1~2→2, 3+→3).</p>
+  </section>
+
+  <section>
+    <h2><span class="n">9</span> 기술 스택</h2>
+    <table>
+      <tr><th>영역</th><th>선택</th></tr>
+      <tr><td>프론트</td><td>HTML/CSS/JS 모바일 웹 (Vanilla 또는 Vite)</td></tr>
+      <tr><td>백엔드/DB</td><td>Supabase (Postgres + Auth + RPC)</td></tr>
+      <tr><td>로그인</td><td>Supabase Auth (카카오/구글)</td></tr>
+      <tr><td>이미지 생성</td><td>html-to-image → PNG</td></tr>
+      <tr><td>결제</td><td>토스페이먼츠 / 페이플</td></tr>
+      <tr><td>배포</td><td>Vercel / Netlify</td></tr>
+    </table>
+    <p class="muted">※ AI 미사용(매핑은 규칙 기반) → 원가 거의 서버비뿐.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">10</span> MVP 범위</h2>
+    <div class="grid2">
+      <div>
+        <h3>포함</h3>
+        <div class="chips">
+          <span class="pill">간편 로그인</span><span class="pill">성장 3단계</span>
+          <span class="pill">먹이주기</span><span class="pill">캐릭터 8종 결정</span>
+          <span class="pill">결과+1~5위</span><span class="pill">이미지 저장</span>
+          <span class="pill">상세 언락 결제</span><span class="pill">독립시키기</span>
+        </div>
+      </div>
+      <div>
+        <h3>제외(추후)</h3>
+        <div class="chips">
+          <span class="pill">스킨 판매</span>
+          <span class="pill">광고</span><span class="pill">푸시 알림</span>
+          <span class="pill">탐색 피드</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>나를 키워줘 · PRD v1.0 · 함께 단계적으로 개발합니다 🌱</footer>
+</div>
+</body>
+</html>
