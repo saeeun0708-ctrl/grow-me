@@ -81,7 +81,7 @@ export async function renderOwner(app) {
       <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
         ${independent
           ? `<button class="btn" id="result">결과 카드 보기</button>`
-          : `<button class="btn" id="share">친구에게 공유하고 먹이받기</button>
+          : `<button class="btn" id="share">친구에게 먹이 요청하기</button>
              ${stage >= 3 ? `<button class="btn ghost" id="independ">독립 시키기 (결과 보기)</button>` : ""}`}
         <button class="btn text" id="logout">로그아웃</button>
       </div>
@@ -101,7 +101,7 @@ export async function renderOwner(app) {
       try {
         await navigator.clipboard.writeText(shareUrl);
         shareBtn.textContent = "링크 복사 완료! 친구에게 붙여넣기";
-        setTimeout(() => (shareBtn.textContent = "친구에게 공유하고 먹이받기"), 1800);
+        setTimeout(() => (shareBtn.textContent = "친구에게 먹이 요청하기"), 1800);
       } catch {
         prompt("이 링크를 복사하세요", shareUrl);
       }
