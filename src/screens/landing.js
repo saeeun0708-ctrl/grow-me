@@ -12,7 +12,7 @@ export async function renderLanding(app) {
       <div class="center">
         <div class="pop-in" style="display:inline-block">${renderCharacter("cute", 1, 160)}</div>
         <h1 class="hero-title mt">나를 키워줘</h1>
-        <p class="hero-sub">친구들이 골라준 단어로 내 캐릭터를 키우고,<br/>"남이 보는 나"를 확인해보세요 🌱</p>
+        <p class="hero-sub">친구들이 골라준 단어로 내 캐릭터를 키우고,<br/>"친구가 보는 나"를 확인해보세요 🌱</p>
       </div>
       <div class="spacer"></div>
 
