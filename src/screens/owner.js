@@ -24,7 +24,7 @@ export async function renderOwner(app) {
   if (stage === 0) {
     progLabel = "첫 먹이를 기다리는 중";
     nextLabel = "먹이 1번 받으면 → 새싹 🌱";
-    charSub = "아직 정체불명의 알…";
+    charSub = "아직 정체불명의 알";
   } else if (stage === 1) {
     progLabel = "새싹이 돋았어요 🌱";
     nextLabel = "먹이 1번 더 → 2단계";
@@ -46,15 +46,17 @@ export async function renderOwner(app) {
       <div class="char-name jua">${form.name}<span class="small"> 완성!</span></div>
       <div class="char-tagline">"${form.tagline}"</div>`;
   } else {
-    labelHtml = `<div class="char-sub">${charSub}</div>`;
+    labelHtml = `<div class="char-sub">${charSub}</div>${
+      stage === 0 ? `<div class="char-hungry">"배고파요.."</div>` : ""
+    }`;
   }
 
   app.innerHTML = `
     <div class="screen" style="padding-bottom:24px">
       <div class="top" style="justify-content:space-between">
         <div>
-          <div style="font-size:13px;color:var(--ink3);font-weight:700">나를 키워줘</div>
-          <div class="jua" style="font-size:20px;color:var(--ink);margin-top:1px">${me.nickname || "나"}를 키우는 중 🌱</div>
+          <div class="jua" style="font-size:25px;color:var(--ink);line-height:1.15">나를 <span style="color:var(--primary)">키워줘</span> 🌱</div>
+          <div style="font-size:15px;color:var(--ink3);font-weight:600;margin-top:3px"><span style="color:var(--ink2);font-weight:800">${me.nickname || "나"}</span>를 키우는 중</div>
         </div>
         <span class="lv">Lv.${stage}</span>
       </div>

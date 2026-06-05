@@ -103,8 +103,9 @@ body{
 }
 .char-name{font-family:'Jua',sans-serif; font-size:23px; color:var(--ink); margin-top:4px; text-align:center}
 .char-name .small{font-size:15px; color:var(--ink3)}
-.char-tagline{font-size:13.5px; color:var(--ink3); margin-top:2px; text-align:center}
+.char-tagline{font-size:15.5px; color:var(--ink2); font-weight:600; margin-top:6px; text-align:center}
 .char-sub{font-family:'Jua',sans-serif; font-size:18px; color:var(--ink3); text-align:center; white-space:nowrap}
+.char-hungry{font-size:14px; color:var(--ink3); text-align:center; margin-top:5px; opacity:.85}
 .fed-pill{
   margin-top:10px; display:inline-block;
   background:#fff; color:var(--primary-dark); font-weight:700; font-size:13px;
