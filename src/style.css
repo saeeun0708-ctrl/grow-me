@@ -238,3 +238,40 @@ body{
 @media (prefers-reduced-motion: reduce){
   .char-bob,.flame-flick,.sparkle-tw{animation:none}
 }
+
+/* ── 공유 바텀 시트 ── */
+.sheet-backdrop{
+  position:fixed; inset:0; background:rgba(0,0,0,.45);
+  display:flex; align-items:flex-end; justify-content:center;
+  z-index:200; animation:fadeIn .2s ease both;
+}
+.sheet{
+  width:100%; max-width:430px;
+  background:#fff; border-radius:24px 24px 0 0;
+  padding:16px 20px 36px;
+  animation:sheetUp .28s cubic-bezier(.2,.9,.3,1.1) both;
+}
+.sheet-handle{
+  width:40px; height:4px; border-radius:2px;
+  background:var(--line); margin:0 auto 20px;
+}
+.sheet-title{
+  font-size:15px; font-weight:700; color:var(--ink2);
+  text-align:center; margin-bottom:16px;
+}
+.sheet-btn{
+  width:100%; border:none; border-radius:16px;
+  padding:16px 20px; font-size:16px; font-weight:700;
+  cursor:pointer; display:flex; align-items:center; gap:12px;
+  margin-bottom:10px; transition:opacity .15s;
+}
+.sheet-btn:active{opacity:.75}
+.sheet-btn.kakao{ background:#FEE500; color:#3A1D1D }
+.sheet-btn.copy{ background:var(--bg2); color:var(--ink) }
+.sheet-btn .icon{ font-size:22px; flex-shrink:0 }
+.sheet-cancel{
+  width:100%; border:none; background:transparent;
+  color:var(--ink3); font-size:15px; font-weight:600;
+  padding:10px; cursor:pointer; margin-top:4px;
+}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}

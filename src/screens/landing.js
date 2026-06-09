@@ -17,14 +17,6 @@ export async function renderLanding(app) {
       <div class="spacer"></div>
 
       <button class="btn kakao" id="login">카카오로 시작하기</button>
-
-      <div class="dev-hint">
-        ${
-          MODE === "supabase"
-            ? "🔌 Supabase 모드 — 카카오 로그인이 실제로 동작합니다."
-            : "🛠️ 로컬 모드 — Supabase 키가 없어 더미 로그인입니다. (.env.local 설정 시 실제 로그인)"
-        }
-      </div>
     </div>
   `;
 

@@ -1,7 +1,7 @@
 // 먹이주기 (지인) 화면 — 인트로 → 제시어 7개 선택 → 완료 (로그인 불필요)
 import { navigate, applyTheme } from "../main.js";
 import { db } from "../lib/db.js";
-import { pickChips, PICK_COUNT } from "../data/words.js";
+import { ALL_WORDS, PICK_COUNT } from "../data/words.js";
 import { renderCharacter } from "../components/character.js";
 
 function alreadyFed(slug) {
@@ -77,7 +77,7 @@ export async function renderFeed(app, slug) {
         <div class="pop-in" style="display:inline-block">${renderCharacter("cute", 1, 150)}</div>
         <div class="muted" style="font-weight:600">🌱 누군가 너를 기다리고 있어</div>
         <h2 style="line-height:1.3"><span style="color:var(--primary)">${ownerName}</span>님을 보면<br/>떠오르는 말은?</h2>
-        <p class="muted" style="line-height:1.6">어울리는 단어 <b style="color:var(--ink)">7개</b>를 골라주면<br/>그게 ${ownerName}님의 <b style="color:var(--ink)">먹이</b>가 돼요.</p>
+        <p class="muted" style="line-height:1.6">어울리는 단어 <b style="color:var(--ink)">7개</b>를 골라주면<br/>${ownerName}님에게 <b style="color:var(--ink)">먹이</b>를 줄 수 있어요.</p>
       </div>
       <button class="btn" id="go">고르러 가기</button>
       <p class="center muted" style="font-size:12.5px;margin-top:10px">딱 30초면 충분해요 · 내 이름과 함께 전달돼요</p>
@@ -86,25 +86,28 @@ export async function renderFeed(app, slug) {
 }
 
 function renderPick(app, owner, slug, ownerName) {
-  const chips = pickChips(5);
+  const shuffle = (arr) => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const chips = shuffle(ALL_WORDS);
   const selected = new Set();
 
   app.innerHTML = `
-    <div class="screen">
-      <div class="center" style="margin-bottom:10px">
-        <h2 class="jua" style="font-size:21px;margin:0;color:var(--ink)">${ownerName}님에게 어울리는 말 7개</h2>
-        <p class="muted" style="font-size:13.5px;color:var(--ink3);margin:4px 0 0">마음에 드는 단어를 톡톡 눌러줘</p>
-      </div>
-      <div class="field" style="margin-bottom:10px">
-        <input id="name" placeholder="내 이름 (예: 단짝 민지)" maxlength="12" />
-      </div>
-      <div class="dots" id="dots">${Array.from({ length: PICK_COUNT }).map(() => `<i></i>`).join("")}</div>
-      <div style="flex:1;overflow-y:auto;padding:4px 0 12px">
+    <div class="screen" style="padding:0">
+      <div style="flex:1;overflow-y:auto;padding:0 16px 12px">
+        <div style="position:sticky;top:0;background:var(--bg);z-index:10;padding:16px 0 10px">
+          <div class="center" style="margin-bottom:10px">
+            <h2 class="jua" style="font-size:21px;margin:0;color:var(--ink)">${ownerName}님에게 어울리는 말 7개</h2>
+            <p class="muted" style="font-size:13.5px;color:var(--ink3);margin:4px 0 0">마음에 드는 단어를 톡톡 눌러줘</p>
+          </div>
+          <div class="field" style="margin-bottom:10px">
+            <input id="name" placeholder="내 이름 (예: 김민지)" maxlength="12" />
+          </div>
+          <div class="dots" id="dots">${Array.from({ length: PICK_COUNT }).map(() => `<i></i>`).join("")}</div>
+        </div>
         <div class="chips" id="chips">
           ${chips.map((w) => `<button class="chip" data-w="${w}">${w}</button>`).join("")}
         </div>
       </div>
-      <button class="btn" id="submit" disabled>7개 더 골라줘</button>
+      <button class="btn" id="submit" disabled style="margin:0 16px 16px;width:calc(100% - 32px)">7개 더 골라줘</button>
     </div>`;
 
   const chipsEl = app.querySelector("#chips");
