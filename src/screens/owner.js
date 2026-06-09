@@ -7,6 +7,7 @@ import { renderCharacter } from "../components/character.js";
 export async function renderOwner(app) {
   const me = await db.ensureMyUser();
   if (!me) return navigate("/");
+  if (!me.theme) return navigate("/onboarding");
 
   const feedbacks = await db.getMyFeedbacks();
   const count = feedbacks.length;
