@@ -59,20 +59,76 @@ export function pickChips(perChar = 5) {
   return shuffle(out);
 }
 
-// 선택된 제시어 배열로 1위 카테고리(캐릭터 코드) 결정
-// 동점이면 먼저 채워진(=배열 앞쪽) 순서 우선이 필요하면 호출부에서 타임스탬프 처리
-export function decideCharacter(selectedWordsList) {
-  const counts = {};
-  selectedWordsList.forEach((w) => {
-    const code = WORD_TO_CATEGORY[w];
-    if (code) counts[code] = (counts[code] || 0) + 1;
-  });
-  let best = null;
-  let bestCount = -1;
-  for (const [code, c] of Object.entries(counts)) {
-    if (c > bestCount) { best = code; bestCount = c; }
+// 동점 최종 타이브레이커용 고정 우선순위 (앞쪽이 우선)
+export const CHARACTER_PRIORITY = ["brain", "charm", "passion", "cute", "fun", "warm", "talent", "mystery"];
+
+// 입력 정규화: [{name, words}] 또는 평면 단어배열(string[]) 모두 허용
+function normalizeFeedbacks(input) {
+  if (!Array.isArray(input) || input.length === 0) return [];
+  if (typeof input[0] === "string") return [{ name: "", words: input }]; // 평면 호환
+  return input.map((f) => ({ name: f.name ?? "", words: f.words || [] }));
+}
+
+// 먹이 목록으로 1위 카테고리(캐릭터 코드) 결정.
+// feedbacks: [{ name, words }] — 받은 시간 오름차순(앞이 먼저 받은 먹이). (평면 string[]도 허용)
+// 합계 1위가 유일하면 그대로, 동점이면 단계적 타이브레이커로 해소한다:
+//   ① 먼저 1위 점수에 도달한 카테고리(시간순)
+//   ② 더 많은 서로 다른 사람이 고른 카테고리(고유 인원수)
+//   ③ 고정 우선순위(CHARACTER_PRIORITY)
+//
+// 시나리오 예) brain·warm이 최종 4점 동점이고 brain이 더 이른 먹이에서 4점에 먼저 도달 → brain.
+//             ①도 동점이면 brain/warm 중 고른 친구 수가 많은 쪽, 그래도 같으면 우선순위표.
+export function decideCharacter(feedbacks) {
+  const list = normalizeFeedbacks(feedbacks);
+
+  // 카테고리별 합계
+  const totals = {};
+  for (const fb of list) {
+    for (const w of fb.words) {
+      const code = WORD_TO_CATEGORY[w];
+      if (code) totals[code] = (totals[code] || 0) + 1;
+    }
   }
-  return best; // 캐릭터 코드 또는 null
+  const codes = Object.keys(totals);
+  if (codes.length === 0) return null;
+
+  const max = Math.max(...codes.map((c) => totals[c]));
+  let tied = codes.filter((c) => totals[c] === max);
+  if (tied.length === 1) return tied[0];
+
+  // ① 먼저 1위 점수(max)에 도달한 순서 — 시간순 누적해 각 후보가 max에 처음 도달한 먹이 인덱스 비교
+  const reachedAt = {};
+  const running = {};
+  for (let i = 0; i < list.length; i++) {
+    for (const w of list[i].words) {
+      const code = WORD_TO_CATEGORY[w];
+      if (code) running[code] = (running[code] || 0) + 1;
+    }
+    for (const c of tied) {
+      if (reachedAt[c] === undefined && (running[c] || 0) >= max) reachedAt[c] = i;
+    }
+  }
+  const firstReach = Math.min(...tied.map((c) => reachedAt[c]));
+  let tied1 = tied.filter((c) => reachedAt[c] === firstReach);
+  if (tied1.length === 1) return tied1[0];
+
+  // ② 고유 인원수 — 해당 카테고리 단어를 고른 서로 다른 사람 수
+  const voters = {};
+  for (const fb of list) {
+    const cats = new Set();
+    for (const w of fb.words) {
+      const code = WORD_TO_CATEGORY[w];
+      if (code) cats.add(code);
+    }
+    for (const c of cats) (voters[c] ||= new Set()).add(fb.name);
+  }
+  const sizeOf = (c) => (voters[c] ? voters[c].size : 0);
+  const maxVoters = Math.max(...tied1.map(sizeOf));
+  let tied2 = tied1.filter((c) => sizeOf(c) === maxVoters);
+  if (tied2.length === 1) return tied2[0];
+
+  // ③ 고정 우선순위
+  return CHARACTER_PRIORITY.find((c) => tied2.includes(c)) ?? tied2[0];
 }
 
 // 먹이(feedback) 수로 성장 단계(레벨) 결정

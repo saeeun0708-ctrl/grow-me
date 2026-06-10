@@ -68,7 +68,7 @@ export async function renderOwner(app) {
   const feedbacks = await db.getMyFeedbacks();
   const count = feedbacks.length;
   const stage = decideStage(count);
-  const code = decideCharacter(feedbacks.flatMap((f) => f.words));
+  const code = decideCharacter(feedbacks);
   const independent = me.is_independent;
   const form = code ? CHARACTERS[code] : null;
 

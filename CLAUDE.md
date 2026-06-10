@@ -36,7 +36,7 @@ npm run preview  # 빌드 결과 미리보기
 - `CHARACTERS`: 8종 캐릭터의 `{ name(표시명), concept, tagline, color }`. **키(`brain`,`charm`,`passion`,`cute`,`fun`,`warm`,`talent`,`mystery`)는 내부 코드이고, 화면엔 `name`을 노출**한다.
 - `WORDS_BY_CATEGORY`: 카테고리 → 제시어 배열. **각 제시어는 정확히 한 카테고리에만 속해야 한다**(역매핑이 깨짐). 카테고리별 개수는 균등할 필요 없음(집계는 합계 비교).
 - `WORD_TO_CATEGORY`(역매핑), `ALL_WORDS`(칩용 평면 리스트), `PICK_COUNT`(=7) 는 위에서 파생.
-- `decideCharacter(words[])`: 선택 단어들을 카테고리별로 합산 → 최다 카테고리 코드 반환(없으면 null). **PRD상 동점은 "먼저 1위 도달한 카테고리 우선"이나 현재 구현은 단순 최댓값** — 타임스탬프 기반 동점 처리는 호출부에서 보강 필요.
+- `decideCharacter(feedbacks)`: **먹이 목록 `[{name, words}]`(시간 오름차순)** 을 받아 카테고리별로 합산 → 최다 카테고리 코드 반환(없으면 null). 평면 `string[]`도 호환. **합계 동점이면 단계적 타이브레이커**로 해소: ① 먼저 1위 점수에 도달한 카테고리(시간순) → ② 더 많은 서로 다른 사람이 고른 카테고리(고유 인원수) → ③ 고정 우선순위(`CHARACTER_PRIORITY`). 그래서 호출부는 **flatMap 하지 말고 `feedbacks`를 그대로 넘긴다**(순서·발신자 정보가 타이브레이커에 필요).
 - `decideStage(count)`: 먹이 0→1단계, 1~2→2단계, 3+→3단계.
 
 `docs/PRD.md` 부록 A의 JSON, `PRD.html`의 제시어 리스트가 `words.js`와 **항상 일치**해야 한다. 제시어/캐릭터를 수정할 때는 세 곳(words.js, PRD.md, PRD.html)을 함께 갱신한다.

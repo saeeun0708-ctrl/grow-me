@@ -20,7 +20,7 @@ export async function renderResult(app) {
   const feedbacks = await db.getMyFeedbacks();
   const count = feedbacks.length;
   const stage = decideStage(count);
-  const code = decideCharacter(feedbacks.flatMap((f) => f.words));
+  const code = decideCharacter(feedbacks);
   const ranking = tally(feedbacks.flatMap((f) => f.words));
   const top5 = ranking.slice(0, 5);
   const unlocked = me.is_unlocked;
