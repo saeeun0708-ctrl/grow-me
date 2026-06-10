@@ -94,7 +94,7 @@ export async function renderResult(app) {
           </div>
 
           <div class="rank-box" style="margin-top:10px">
-            <div class="rh">내가 제일 많이 받은 말 TOP 3</div>
+            <div class="rh">내가 가장 많이 받은 말 TOP 3</div>
             ${top3
               .map(
                 (w, i) => `
