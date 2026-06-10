@@ -58,6 +58,7 @@ import { navigate } from "../main.js";
 import { db } from "../lib/db.js";
 import { decideStage, decideCharacter, CHARACTERS } from "../data/words.js";
 import { renderCharacter } from "../components/character.js";
+import { josa } from "../lib/josa.js";
 
 export async function renderOwner(app) {
   const me = await db.ensureMyUser();
@@ -112,7 +113,7 @@ export async function renderOwner(app) {
       <div class="top" style="justify-content:space-between">
         <div>
           <div class="jua" style="font-size:25px;color:var(--ink);line-height:1.15">나를 <span style="color:var(--primary)">키워줘</span> 🌱</div>
-          <div style="font-size:15px;color:var(--ink3);font-weight:600;margin-top:3px"><span style="color:var(--ink2);font-weight:800">${me.nickname || "나"}</span>를 키우는 중</div>
+          <div style="font-size:15px;color:var(--ink3);font-weight:600;margin-top:3px"><span style="color:var(--ink2);font-weight:800">${me.nickname || "나"}</span>${josa(me.nickname || "나", "을", "를")} 키우는 중</div>
         </div>
         <span class="lv">Lv.${stage}</span>
       </div>

@@ -3,6 +3,7 @@ import { navigate } from "../main.js";
 import { db } from "../lib/db.js";
 import { decideStage, decideCharacter, CHARACTERS } from "../data/words.js";
 import { renderCharacter } from "../components/character.js";
+import { josa } from "../lib/josa.js";
 
 function tally(words) {
   const map = {};
@@ -52,7 +53,7 @@ export async function renderResult(app) {
       <div class="brag" id="brag-card">
         <div class="dots-bg"></div>
         <div class="inner">
-          <div class="lead-line">${count}명이 키워준 결과, <b>${me.nickname || "나"}</b>는…</div>
+          <div class="lead-line">${count}명이 키워준 결과, <b>${me.nickname || "나"}</b>${josa(me.nickname || "나", "은", "는")}…</div>
 
           <div style="position:relative;display:flex;justify-content:center;margin:6px 0 2px">
             <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;border-radius:50%;background:radial-gradient(circle, ${glowColor}55, transparent 65%)"></div>
