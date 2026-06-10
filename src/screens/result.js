@@ -1,7 +1,7 @@
 // 결과 화면 — 자랑용 결과 카드(브래그 카드) + 상세 언락(결제)
 import { navigate } from "../main.js";
 import { db } from "../lib/db.js";
-import { decideStage, decideCharacter, CHARACTERS } from "../data/words.js";
+import { decideStage, decideCharacter, CHARACTERS, WORD_TO_CATEGORY } from "../data/words.js";
 import { renderCharacter } from "../components/character.js";
 import { josa } from "../lib/josa.js";
 
@@ -21,10 +21,23 @@ export async function renderResult(app) {
   const count = feedbacks.length;
   const stage = decideStage(count);
   const code = decideCharacter(feedbacks);
-  const ranking = tally(feedbacks.flatMap((f) => f.words));
-  const top5 = ranking.slice(0, 5);
+  const allWords = feedbacks.flatMap((f) => f.words);
+  const ranking = tally(allWords);
+  const top3 = ranking.slice(0, 3);
   const unlocked = me.is_unlocked;
   const form = code ? CHARACTERS[code] : null;
+
+  // 카테고리(캐릭터)별 합계 → 비율(%) 환산. 매핑된 단어 총합이 분모.
+  const catCounts = {};
+  let mappedTotal = 0;
+  allWords.forEach((w) => {
+    const c = WORD_TO_CATEGORY[w];
+    if (c) { catCounts[c] = (catCounts[c] || 0) + 1; mappedTotal += 1; }
+  });
+  const charRanking = Object.entries(catCounts)
+    .map(([cc, n]) => ({ code: cc, pct: Math.round((n / mappedTotal) * 100) }))
+    .sort((a, b) => b.pct - a.pct)
+    .slice(0, 3);
 
   if (count === 0) {
     app.innerHTML = `
@@ -42,8 +55,8 @@ export async function renderResult(app) {
     return;
   }
 
-  const medal = ["🥇", "🥈", "🥉", "4", "5"];
-  const maxCount = top5[0].count;
+  const medal = ["🥇", "🥈", "🥉"];
+  const maxCount = top3[0].count;
   const glowColor = form ? form.color : "#FF7FA3";
 
   app.innerHTML = `
@@ -66,12 +79,27 @@ export async function renderResult(app) {
           </div>
 
           <div class="rank-box">
-            <div class="rh">내가 제일 많이 받은 말 TOP 5</div>
-            ${top5
+            <div class="rh">나를 닮은 캐릭터 TOP 3</div>
+            ${charRanking
+              .map(
+                (ch, i) => `
+              <div class="rank-row">
+                <span class="medal">${medal[i]}</span>
+                <span class="word">${CHARACTERS[ch.code].name}</span>
+                <div class="bar"><div style="width:${ch.pct}%;background:${CHARACTERS[ch.code].color}"></div></div>
+                <span class="cnt" style="width:auto;min-width:38px">${ch.pct}%</span>
+              </div>`
+              )
+              .join("")}
+          </div>
+
+          <div class="rank-box" style="margin-top:10px">
+            <div class="rh">내가 제일 많이 받은 말 TOP 3</div>
+            ${top3
               .map(
                 (w, i) => `
               <div class="rank-row">
-                <span class="medal" style="${i >= 3 ? "font-size:14px" : ""}">${medal[i]}</span>
+                <span class="medal">${medal[i]}</span>
                 <span class="word">${w.word}</span>
                 <div class="bar"><div style="width:${(w.count / maxCount) * 100}%;${i === 0 ? "background:linear-gradient(90deg,var(--primary),var(--primary-dark))" : `opacity:${0.55 - i * 0.07}`}"></div></div>
                 <span class="cnt">${w.count}</span>
