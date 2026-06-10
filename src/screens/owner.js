@@ -108,7 +108,7 @@ export async function renderOwner(app) {
   }
 
   app.innerHTML = `
-    <div class="screen" style="padding-bottom:24px">
+    <div class="screen" style="padding-bottom:calc(24px + env(safe-area-inset-bottom))">
       <div class="top" style="justify-content:space-between">
         <div>
           <div class="jua" style="font-size:25px;color:var(--ink);line-height:1.15">나를 <span style="color:var(--primary)">키워줘</span> 🌱</div>
