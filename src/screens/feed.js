@@ -3,6 +3,7 @@ import { navigate, applyTheme } from "../main.js";
 import { db } from "../lib/db.js";
 import { ALL_WORDS, PICK_COUNT } from "../data/words.js";
 import { renderCharacter } from "../components/character.js";
+import { renderLoading } from "../components/loading.js";
 
 function alreadyFed(slug) {
   try {
@@ -49,7 +50,7 @@ function infoScreen(app, emoji, code, st, title, sub, btnLabel, onBtn, conf) {
 }
 
 export async function renderFeed(app, slug) {
-  app.innerHTML = `<div class="screen"><div class="center-screen">${renderCharacter("cute", 1, 120)}<p class="muted">불러오는 중…</p></div></div>`;
+  app.innerHTML = renderLoading(renderCharacter("cute", 1, 96));
 
   let owner;
   try {
@@ -87,33 +88,64 @@ export async function renderFeed(app, slug) {
 
 function renderPick(app, owner, slug, ownerName) {
   const shuffle = (arr) => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-  const chips = shuffle(ALL_WORDS);
+  const allChips = shuffle(ALL_WORDS);
+  const INIT = 30;
+  const BATCH = 20;
+  let loaded = INIT;
   const selected = new Set();
 
   app.innerHTML = `
-    <div class="screen" style="padding:0">
-      <div style="flex:1;overflow-y:auto;padding:0 16px 12px">
-        <div style="position:sticky;top:0;background:var(--bg);z-index:10;padding:16px 0 10px">
-          <div class="center" style="margin-bottom:10px">
-            <h2 class="jua" style="font-size:21px;margin:0;color:var(--ink)">${ownerName}님에게 어울리는 말 7개</h2>
-            <p class="muted" style="font-size:13.5px;color:var(--ink3);margin:4px 0 0">마음에 드는 단어를 톡톡 눌러줘</p>
-          </div>
-          <div class="field" style="margin-bottom:10px">
-            <input id="name" placeholder="내 이름 (예: 김민지)" maxlength="12" />
-          </div>
-          <div class="dots" id="dots">${Array.from({ length: PICK_COUNT }).map(() => `<i></i>`).join("")}</div>
-        </div>
-        <div class="chips" id="chips">
-          ${chips.map((w) => `<button class="chip" data-w="${w}">${w}</button>`).join("")}
-        </div>
+    <div style="position:fixed;top:0;left:50%;transform:translateX(-50%);width:min(430px,100%);background:var(--bg);z-index:10;padding:16px 16px 10px">
+      <div class="center" style="margin-bottom:10px">
+        <h2 class="jua" style="font-size:21px;margin:0;color:var(--ink)">${ownerName}님에게 어울리는 말 7개</h2>
+        <p class="muted" style="font-size:13.5px;color:var(--ink3);margin:4px 0 0">마음에 드는 단어를 톡톡 눌러줘</p>
       </div>
-      <button class="btn" id="submit" disabled style="margin:0 16px 16px;width:calc(100% - 32px)">7개 더 골라줘</button>
+      <div class="field" style="margin-bottom:10px">
+        <input id="name" placeholder="내 이름 (예: 김민지)" maxlength="12" />
+      </div>
+      <div class="dots" id="dots">${Array.from({ length: PICK_COUNT }).map(() => `<i></i>`).join("")}</div>
+    </div>
+    <div style="padding:170px 16px 100px">
+      <div class="chips" id="chips">
+        ${allChips.slice(0, INIT).map((w) => `<button class="chip" data-w="${w}">${w}</button>`).join("")}
+      </div>
+    </div>
+    <div style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(430px,100%);padding:0 16px 20px;background:linear-gradient(transparent,var(--bg) 40%);z-index:20">
+      <button class="btn" id="submit" disabled>7개 더 골라줘</button>
     </div>`;
 
   const chipsEl = app.querySelector("#chips");
   const dotsEl = app.querySelector("#dots");
   const submitEl = app.querySelector("#submit");
   const nameEl = app.querySelector("#name");
+  // window 스크롤로 감지 (iOS Safari 호환)
+  function loadMore() {
+    if (loaded >= allChips.length) return;
+    const next = allChips.slice(loaded, loaded + BATCH);
+    const full = selected.size >= PICK_COUNT;
+    next.forEach((w) => {
+      const btn = document.createElement("button");
+      btn.className = "chip" + (full ? " dim" : "");
+      btn.dataset.w = w;
+      btn.textContent = w;
+      chipsEl.appendChild(btn);
+    });
+    loaded += BATCH;
+  }
+
+  function onScroll() {
+    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+    if (scrollTop + clientHeight >= scrollHeight - 200) loadMore();
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  // 화면 벗어날 때 리스너 정리
+  const cleanup = new MutationObserver(() => {
+    if (!document.contains(chipsEl)) {
+      window.removeEventListener("scroll", onScroll);
+      cleanup.disconnect();
+    }
+  });
+  cleanup.observe(document.body, { childList: true, subtree: true });
 
   function refresh() {
     const n = selected.size;

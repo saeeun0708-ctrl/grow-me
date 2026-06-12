@@ -6,6 +6,7 @@ import { renderOwner } from "./screens/owner.js";
 import { renderFeed } from "./screens/feed.js";
 import { renderResult } from "./screens/result.js";
 import { renderOnboarding } from "./screens/onboarding.js";
+import { renderLoading } from "./components/loading.js";
 
 const app = document.getElementById("app");
 
@@ -25,9 +26,9 @@ export function applyTheme(name) {
   app.className = THEME_CLASS[name] || "theme-strawberry";
 }
 
-// 간단 로딩 표시
+// 로딩 표시 (트렌디 로더)
 function showLoading() {
-  app.innerHTML = `<div class="screen"><div class="done"><div class="pop">🌱</div><p class="muted">불러오는 중…</p></div></div>`;
+  app.innerHTML = renderLoading();
 }
 
 async function router() {

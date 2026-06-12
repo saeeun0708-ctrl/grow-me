@@ -21,6 +21,7 @@
 
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
 html,body{margin:0; padding:0}
+html{background:#fff}
 body{
   font-family:'Pretendard',system-ui,sans-serif;
   color:var(--ink);
@@ -239,6 +240,165 @@ body{
   .char-bob,.flame-flick,.sparkle-tw{animation:none}
 }
 
+/* ── 결과 분석 화면 (심리검사 스타일) ── */
+.result-screen{padding-bottom:96px}
+
+/* 저장 CTA 하단 고정 바 */
+.save-dock{
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:min(430px,100%); padding:10px 16px 18px; z-index:20;
+  background:linear-gradient(transparent, var(--bg) 38%);
+}
+
+.friends-pill{
+  display:inline-flex; align-items:center;
+  background:var(--primary); color:#fff;
+  font-size:13px; font-weight:800;
+  padding:6px 16px; border-radius:999px;
+}
+
+/* 캐릭터 reveal 카드 */
+.reveal-card{
+  background:linear-gradient(170deg, var(--card-top), var(--card-bot));
+  border-radius:26px; padding:20px 20px 22px; position:relative; overflow:hidden;
+  margin-bottom:12px; box-shadow:0 12px 32px rgba(120,90,110,.16);
+  border:1px solid rgba(255,255,255,.6);
+}
+.dots-bg2{
+  position:absolute; inset:0; opacity:.4; pointer-events:none;
+  background-image:radial-gradient(var(--line) 1.2px, transparent 1.2px);
+  background-size:16px 16px;
+}
+.reveal-inner{position:relative; display:flex; flex-direction:column; align-items:center}
+.reveal-headline{
+  font-family:'Jua',sans-serif; font-size:30px;
+  color:var(--ink); margin-top:8px; text-align:center;
+}
+.reveal-tagline{
+  font-size:15px; color:var(--ink2); font-weight:600;
+  margin-top:3px; text-align:center;
+}
+.reveal-type-badge{
+  margin-top:12px; padding:7px 18px; border-radius:999px;
+  background:rgba(255,255,255,.82); font-size:12.5px; font-weight:800;
+  color:var(--ink2); border:1px solid rgba(255,255,255,.95);
+  backdrop-filter:blur(4px);
+}
+
+/* 분석 섹션 카드 */
+.analysis-section{
+  background:#fff; border-radius:20px; padding:16px 16px 14px;
+  margin-bottom:10px; box-shadow:0 4px 14px rgba(120,90,110,.07);
+}
+.section-label{
+  font-size:13px; font-weight:800; color:var(--ink2); letter-spacing:.3px; margin-bottom:10px;
+}
+.section-sub{font-size:12px; color:var(--ink3); margin:-6px 0 10px}
+.personality-desc{
+  font-size:15px; line-height:1.78; color:var(--ink); margin:0 0 8px; word-break:keep-all;
+}
+.personality-hint{
+  font-size:13.5px; line-height:1.7; color:var(--ink2); margin:4px 0 0; word-break:keep-all;
+}
+.hidden-trait-inline{
+  display:flex; flex-direction:column; gap:3px;
+  border-top:1px solid var(--line); margin-top:12px; padding-top:10px;
+}
+.ht-label{
+  font-size:11px; font-weight:800; color:var(--ink3); letter-spacing:.3px; text-transform:uppercase;
+}
+.ht-text{
+  font-size:13.5px; color:var(--ink2); font-weight:600; word-break:keep-all; line-height:1.6;
+}
+
+/* 카테고리 바 */
+.cat-bars{display:flex; flex-direction:column; gap:7px}
+.cat-row{display:flex; align-items:center; gap:8px}
+.cat-icon{font-size:15px; width:22px; text-align:center; flex-shrink:0}
+.cat-name{font-size:13px; font-weight:700; color:var(--ink); width:72px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.cat-bar-wrap{flex:1; height:10px; border-radius:999px; background:var(--line); overflow:hidden}
+.cat-bar-fill{height:100%; border-radius:999px; transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.cat-pct{font-size:12px; font-weight:800; color:var(--ink3); width:34px; text-align:right; flex-shrink:0}
+
+/* 키워드 칩 */
+.kw-list{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.kw-chip{
+  display:inline-flex; align-items:center; gap:5px;
+  background:var(--bg2); border:1.5px solid var(--line);
+  border-radius:999px; padding:7px 12px;
+  font-size:14px; font-weight:700; color:var(--ink);
+  white-space:nowrap; line-height:1.4;
+}
+.kw-chip.kw-top{
+  background:linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color:#fff; border-color:var(--primary);
+  box-shadow:0 4px 12px rgba(255,127,163,.28);
+}
+.kw-cnt{
+  font-size:11px; font-weight:800;
+  background:rgba(0,0,0,.09); padding:1px 6px; border-radius:999px;
+}
+.kw-chip.kw-top .kw-cnt{background:rgba(255,255,255,.25)}
+
+/* 의외의 매력 카드 */
+.hidden-trait-card{
+  background:linear-gradient(135deg, #F5F0FF, #FFF5FB);
+  border:1.5px solid #E0D4FF; border-radius:18px;
+  padding:14px 16px; margin-bottom:10px;
+}
+.hidden-trait-label{
+  font-size:12px; font-weight:800; color:#9A85E8; letter-spacing:.3px; margin-bottom:6px;
+}
+.hidden-trait-main{font-size:14.5px; line-height:1.65; color:var(--ink); word-break:keep-all}
+
+/* 공유 구분선 */
+.share-divider{display:flex; align-items:center; gap:12px; margin:20px 0 14px}
+.share-divider::before,.share-divider::after{
+  content:''; flex:1; height:1.5px; background:var(--line); border-radius:1px;
+}
+.share-divider span{font-size:13px; font-weight:800; color:var(--ink2); white-space:nowrap}
+
+/* 인스타 공유 카드 */
+.insta-card-outer{
+  border-radius:24px; overflow:hidden;
+  box-shadow:0 20px 50px rgba(120,90,110,.22);
+}
+.insta-card{
+  width:100%;
+  background:linear-gradient(160deg, var(--card-top) 0%, var(--card-bot) 100%);
+  padding:24px 22px 20px;
+  display:flex; flex-direction:column; align-items:center;
+  position:relative; overflow:hidden;
+}
+.ic-dots-bg{
+  position:absolute; inset:0; opacity:.35; pointer-events:none;
+  background-image:radial-gradient(var(--line) 1.2px, transparent 1.2px);
+  background-size:14px 14px;
+}
+.ic-inner{position:relative; width:100%; display:flex; flex-direction:column; align-items:center}
+.ic-header{
+  font-size:10px; font-weight:800; color:var(--ink3); letter-spacing:.8px; text-transform:uppercase;
+  background:rgba(255,255,255,.72); padding:5px 14px; border-radius:999px;
+  margin-bottom:12px; backdrop-filter:blur(4px);
+}
+.ic-name{font-family:'Jua',sans-serif; font-size:32px; color:var(--ink); margin-top:6px; text-align:center}
+.ic-tagline{font-size:14px; font-weight:700; color:var(--ink2); margin-top:3px; text-align:center}
+.ic-divider{width:36px; height:2px; background:var(--primary); border-radius:1px; margin:12px 0 10px}
+.ic-headline{font-size:12.5px; font-weight:800; color:var(--ink2); text-align:center; margin-bottom:12px}
+.ic-keywords{display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-bottom:16px}
+.ic-kw{
+  font-size:13px; font-weight:700;
+  background:rgba(255,255,255,.82); color:var(--ink);
+  padding:6px 13px; border-radius:999px;
+  border:1px solid rgba(255,255,255,.95); backdrop-filter:blur(4px);
+}
+.ic-footer{
+  width:100%; display:flex; justify-content:space-between; align-items:center;
+  border-top:1px solid rgba(0,0,0,.07); padding-top:12px; margin-top:2px;
+}
+.ic-count{font-size:12px; font-weight:700; color:var(--ink3)}
+.ic-brand{font-family:'Jua',sans-serif; font-size:14px; color:var(--primary)}
+
 /* ── 공유 바텀 시트 ── */
 .sheet-backdrop{
   position:fixed; inset:0; background:rgba(0,0,0,.45);
@@ -268,10 +428,49 @@ body{
 .sheet-btn:active{opacity:.75}
 .sheet-btn.kakao{ background:#FEE500; color:#3A1D1D }
 .sheet-btn.copy{ background:var(--bg2); color:var(--ink) }
-.sheet-btn .icon{ font-size:22px; flex-shrink:0 }
 .sheet-cancel{
   width:100%; border:none; background:transparent;
   color:var(--ink3); font-size:15px; font-weight:600;
   padding:10px; cursor:pointer; margin-top:4px;
 }
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+/* ── 트렌디 로딩 ── */
+.loading-screen{
+  display:flex; align-items:center; justify-content:center;
+  min-height:78vh;
+}
+.loader{display:flex; flex-direction:column; align-items:center; gap:24px}
+.loader-orb{
+  position:relative; width:124px; height:124px;
+  display:flex; align-items:center; justify-content:center;
+}
+/* 회전하는 그라데이션 링 (conic + mask 도넛) */
+.loader-ring{
+  position:absolute; inset:0; border-radius:50%;
+  background:conic-gradient(from 90deg, transparent 0%, var(--primary) 65%, var(--primary-dark) 100%);
+  -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 6px));
+          mask:radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 6px));
+  animation:loaderSpin .9s linear infinite;
+}
+.loader-core{
+  position:relative; width:100%; height:100%;
+  display:flex; align-items:center; justify-content:center;
+  animation:loaderPulse 1.5s ease-in-out infinite;
+}
+.loader-seed{font-size:46px; display:inline-block}
+/* 물결 바운스 도트 */
+.loader-dots{display:flex; gap:9px}
+.loader-dots span{
+  width:9px; height:9px; border-radius:50%;
+  background:var(--primary); opacity:.4;
+  animation:loaderBounce 1s ease-in-out infinite;
+}
+.loader-dots span:nth-child(2){animation-delay:.16s; background:var(--primary-dark)}
+.loader-dots span:nth-child(3){animation-delay:.32s}
+@keyframes loaderSpin{to{transform:rotate(360deg)}}
+@keyframes loaderPulse{0%,100%{transform:scale(.96)} 50%{transform:scale(1.04)}}
+@keyframes loaderBounce{0%,100%{transform:translateY(0); opacity:.35} 50%{transform:translateY(-8px); opacity:1}}
+@media (prefers-reduced-motion: reduce){
+  .loader-ring,.loader-core,.loader-dots span{animation-duration:2.4s}
+}

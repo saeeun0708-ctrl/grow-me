@@ -6,13 +6,9 @@ function openShareSheet(url) {
   backdrop.innerHTML = `
     <div class="sheet">
       <div class="sheet-handle"></div>
-      <div class="sheet-title">친구에게 공유하기</div>
-      <button class="sheet-btn kakao" id="sheet-kakao">
-        <span class="icon">💬</span>카카오톡으로 공유하기
-      </button>
-      <button class="sheet-btn copy" id="sheet-copy">
-        <span class="icon">🔗</span>링크 복사하기
-      </button>
+      <div class="sheet-title">친구에게 먹이 요청하기</div>
+      <button class="sheet-btn kakao" id="sheet-kakao">카카오톡으로 공유하기</button>
+      <button class="sheet-btn copy" id="sheet-copy">링크 복사하기</button>
       <button class="sheet-cancel" id="sheet-cancel">취소</button>
     </div>
   `;
@@ -25,15 +21,14 @@ function openShareSheet(url) {
 
   backdrop.querySelector("#sheet-kakao").onclick = () => {
     close();
-    const kakaoKey = import.meta.env.VITE_KAKAO_JS_KEY;
-    if (!kakaoKey) return alert("카카오 앱키가 설정되지 않았어요.");
+    const kakaoKey = "f716efd9dc8b2eac6addddad097c4b4f";
     if (!window.Kakao.isInitialized()) window.Kakao.init(kakaoKey);
     window.Kakao.Share.sendDefault({
       objectType: "feed",
       content: {
         title: "나를 키워줘 🌱",
         description: "나를 보면 생각나는 말 7개만 골라줘!",
-        imageUrl: "https://grow-me-omega.vercel.app/og-image.png",
+        imageUrl: "https://grow-me-omega.vercel.app/feed-image.png",
         link: { mobileWebUrl: url, webUrl: url },
       },
       buttons: [{ title: "먹이 주러 가기", link: { mobileWebUrl: url, webUrl: url } }],
@@ -46,7 +41,7 @@ function openShareSheet(url) {
       await navigator.clipboard.writeText(url);
       const btn = document.querySelector("#share");
       if (btn) {
-        btn.textContent = "✅ 링크 복사 완료!";
+        btn.textContent = "링크 복사 완료!";
         setTimeout(() => (btn.textContent = "친구에게 먹이 요청하기"), 1800);
       }
     } catch {
