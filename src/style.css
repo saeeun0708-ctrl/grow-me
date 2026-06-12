@@ -376,15 +376,22 @@ body{
   background-size:14px 14px;
 }
 .ic-inner{position:relative; width:100%; display:flex; flex-direction:column; align-items:center}
-.ic-header{
-  font-size:10px; font-weight:800; color:var(--ink3); letter-spacing:.8px; text-transform:uppercase;
-  background:rgba(255,255,255,.72); padding:5px 14px; border-radius:999px;
-  margin-bottom:12px; backdrop-filter:blur(4px);
+/* 카드 타이틀: 서브('N명의 친구가 본') + 메인('{닉}님의 매력은?') */
+.ic-subtitle{
+  font-size:12px; font-weight:800; color:var(--ink3); letter-spacing:.3px;
+  text-align:center; margin-bottom:2px;
 }
-.ic-name{font-family:'Jua',sans-serif; font-size:32px; color:var(--ink); margin-top:6px; text-align:center}
-.ic-tagline{font-size:14px; font-weight:700; color:var(--ink2); margin-top:3px; text-align:center}
-.ic-divider{width:36px; height:2px; background:var(--primary); border-radius:1px; margin:12px 0 10px}
-.ic-headline{font-size:12.5px; font-weight:800; color:var(--ink2); text-align:center; margin-bottom:12px}
+/* 메인타이틀(=카드 주제 '매력은?')을 키워 캐릭터 이름과 위계 정리 */
+.ic-maintitle{
+  font-family:'Jua',sans-serif; font-size:24px; color:var(--ink);
+  text-align:center; margin-bottom:6px;
+}
+.ic-name{font-family:'Jua',sans-serif; font-size:27px; color:var(--ink); margin-top:6px; text-align:center}
+/* 태그라인=가벼운 캐릭터 콘셉트(연하게), 헤드라인=분석 결론(강조) — 역할 분리 */
+.ic-tagline{font-size:12.5px; font-weight:700; color:var(--ink3); margin-top:3px; text-align:center}
+.ic-headline{font-size:13.5px; font-weight:800; color:var(--ink); text-align:center; margin-top:5px}
+/* 구분선: 외톨이 포인트색 대신 무채색으로 (카드 색 정돈) */
+.ic-divider{width:40px; height:2px; background:var(--line); border-radius:1px; margin:14px 0 14px}
 .ic-keywords{display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-bottom:16px}
 .ic-kw{
   font-size:13px; font-weight:700;
@@ -392,12 +399,21 @@ body{
   padding:6px 13px; border-radius:999px;
   border:1px solid rgba(255,255,255,.95); backdrop-filter:blur(4px);
 }
+/* 카드 미니 성분표 — 1·2·3위 순위 뱃지 + 가로 bar */
+.ic-mini-bars{width:100%; display:flex; flex-direction:column; gap:7px; margin-bottom:14px}
+.ic-bar-row{display:flex; align-items:center; gap:8px}
+.ic-bar-rank{font-size:11px; font-weight:800; color:var(--primary-dark); width:26px; flex-shrink:0; text-align:left}
+.ic-bar-name{font-size:11px; font-weight:700; color:var(--ink2); width:52px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ic-bar-track{flex:1; height:7px; border-radius:4px; background:rgba(255,255,255,.6); overflow:hidden}
+.ic-bar-fill{height:100%; border-radius:4px}
+.ic-bar-pct{font-size:11px; font-weight:800; color:var(--ink2); width:30px; text-align:right; flex-shrink:0}
 .ic-footer{
   width:100%; display:flex; justify-content:space-between; align-items:center;
   border-top:1px solid rgba(0,0,0,.07); padding-top:12px; margin-top:2px;
 }
 .ic-count{font-size:12px; font-weight:700; color:var(--ink3)}
 .ic-brand{font-family:'Jua',sans-serif; font-size:14px; color:var(--primary)}
+.ic-url{font-size:11px; font-weight:700; color:var(--ink3); letter-spacing:.3px}
 
 /* ── 공유 바텀 시트 ── */
 .sheet-backdrop{
