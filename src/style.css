@@ -182,10 +182,6 @@ body{
 .brag .foot{display:flex; align-items:center; justify-content:center; gap:6px; margin-top:16px; font-size:12px; color:var(--ink3); font-weight:700}
 
 /* 잠금(결제) */
-.lock-area{margin-top:16px; padding:16px; border-radius:18px; background:#fff; box-shadow:0 4px 16px rgba(120,90,110,.08); text-align:center}
-.lock-area .blur{filter:blur(6px); opacity:.7; pointer-events:none; user-select:none}
-.lock-title{font-family:'Jua',sans-serif; font-size:17px; color:var(--ink)}
-.lock-sub{font-size:12.5px; color:var(--ink2); margin-top:4px}
 .lock-list{display:flex; flex-direction:column; gap:10px; margin-top:14px; text-align:left}
 /* 사람별 카드: 위쪽에 아바타+이름, 아래쪽에 고른 단어 칩 */
 .lock-list .row{display:block; background:#fcf6f8; border:1px solid var(--line); border-radius:14px; padding:12px 13px}

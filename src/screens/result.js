@@ -491,20 +491,21 @@ export async function renderResult(app) {
           </div>`,
       }) : ""}
 
-      <!-- ⑧ 잠금 섹션 — 중복 제거 -->
-      <div class="lock-area" style="margin-top:10px">
-        <div class="lock-title">👀 누가 어떤 말을 골랐을까?</div>
-        <div class="lock-sub">${unlocked ? `친구 ${count}명이 골라준 단어를 모두 확인했어요` : "친구별로 어떤 단어를 골랐는지 확인해보세요"}</div>
+      <!-- ⑧ 누가 어떤 말을 골랐나 — 다른 섹션과 동일한 lockWrap 잠금 UI로 통일 -->
+      <div class="analysis-section">
+        <div class="section-label">누가 어떤 말을 골랐을까?</div>
+        <div class="section-sub">${unlocked ? `친구 ${count}명이 골라준 단어를 모두 확인했어요` : "친구별로 어떤 단어를 골랐는지 확인해보세요"}</div>
         ${
           unlocked
             ? `<div class="lock-list">${feedbacks
                 .map((f) => fbRow(f.name, f.words))
                 .join("")}</div>`
-            : `<div class="lock-list blur">${feedbacks
-                .slice(0, 3)
-                .map((f) => fbRow("●●●", f.words.slice(0, 4)))
-                .join("")}</div>
-               <button class="btn unlock-cta" type="button" style="margin-top:16px">🔒 잠금 해제 (990원)</button>`
+            : lockWrap(
+                `<div class="lock-list">${feedbacks
+                  .slice(0, 3)
+                  .map((f) => fbRow("●●●", f.words.slice(0, 4)))
+                  .join("")}</div>`
+              )
         }
       </div>
     </div>
@@ -569,7 +570,7 @@ export async function renderResult(app) {
   // 오픈 이벤트: 결제 연동 전까지, 어떤 잠금 해제 버튼을 눌러도 무료로 전체를 공개한다.
   // (한 번 해제하면 is_unlocked=true 캐시 → 모든 잠금 섹션이 동시에 열린다)
   const unlockAll = async () => {
-    alert("안심하세요! 당분간은 결제 없이 결과를 확인할 수 있어요. ");
+    alert("정말 운이 좋네요! 당분간은 결제 없이 마음껏 결과를 확인할 수 있어요 :)");
     await db.setUnlocked(true);
     renderResult(app);
   };
