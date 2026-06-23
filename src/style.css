@@ -84,7 +84,7 @@ body{
 .btn:active{transform:scale(.97)}
 .btn:disabled{background:var(--line); color:var(--ink3); box-shadow:none; cursor:default}
 .btn.ghost{
-  height:52px; font-size:16.5px; background:#fff; color:var(--primary-dark);
+  background:#fff; color:var(--primary-dark);
   border:2px solid var(--primary); box-shadow:none;
 }
 .btn.kakao{ background:#FEE500; color:#3A1D1D; box-shadow:0 10px 22px rgba(254,229,0,.36) }

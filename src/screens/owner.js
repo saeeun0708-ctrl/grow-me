@@ -93,9 +93,9 @@ export async function renderOwner(app) {
         <span class="lv">Lv.${stage}</span>
       </div>
 
-      <div class="char-stage" style="flex:1">
+      <div class="char-stage" style="flex:1;min-height:0">
         <div class="glow"></div>
-        <div class="grow-in">${renderCharacter(code, stage, 220)}</div>
+        <div class="grow-in">${renderCharacter(code, stage, 188)}</div>
         <div style="margin-top:4px">${labelHtml}</div>
         ${count > 0 ? `<div class="fed-pill">🍚 ${count}명이 키워줬어요</div>` : ""}
       </div>
@@ -106,7 +106,7 @@ export async function renderOwner(app) {
         <div class="prog-bar"><div style="width:${progPct}%"></div></div>
       </div>
 
-      <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
+      <div style="display:flex;flex-direction:column;gap:9px;margin-top:12px">
         <button class="btn" id="share">친구에게 먹이 요청하기</button>
         ${count > 0 ? `<button class="btn ghost" id="result">결과 카드 보기</button>` : ""}
         <button class="btn text" id="logout">로그아웃</button>

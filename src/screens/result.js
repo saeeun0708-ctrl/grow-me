@@ -570,7 +570,7 @@ export async function renderResult(app) {
   // 오픈 이벤트: 결제 연동 전까지, 어떤 잠금 해제 버튼을 눌러도 무료로 전체를 공개한다.
   // (한 번 해제하면 is_unlocked=true 캐시 → 모든 잠금 섹션이 동시에 열린다)
   const unlockAll = async () => {
-    alert("정말 운이 좋네요! 당분간은 결제 없이 마음껏 결과를 확인할 수 있어요 :)");
+    alert("정말 운이 좋네요! 당분간은 결제 없이 마음껏 결과를 확인하세요 :)");
     await db.setUnlocked(true);
     renderResult(app);
   };
