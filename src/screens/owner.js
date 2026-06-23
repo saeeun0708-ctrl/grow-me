@@ -125,7 +125,15 @@ export async function renderOwner(app) {
     };
 
   const resultBtn = app.querySelector("#result");
-  if (resultBtn) resultBtn.onclick = () => navigate("/result");
+  if (resultBtn)
+    resultBtn.onclick = () => {
+      // 먹이 3개(완성)를 채워야 결과 카드 열람 가능
+      if (count < 3) {
+        alert(`먹이를 ${3 - count}개 더 받으면 결과를 볼 수 있어요!`);
+        return;
+      }
+      navigate("/result");
+    };
   app.querySelector("#logout").onclick = async () => {
     await db.signOut();
     navigate("/");

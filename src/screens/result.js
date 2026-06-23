@@ -4,31 +4,31 @@ import { db } from "../lib/db.js";
 import { decideStage, decideCharacter, CHARACTERS, WORD_TO_CATEGORY } from "../data/words.js";
 import { renderCharacter } from "../components/character.js";
 import { openShareSheet } from "../lib/share.js";
-import html2canvas from "html2canvas";
+import { toPng } from "html-to-image";
 
 // 진입점(시청자가 "나도 해볼래"로 들어올 주소) — 호스팅 도메인
 const ENTRY_URL = "grow-me-omega.vercel.app";
 
-// 결과 카드(#insta-card)를 폰트·CSS 그대로 PNG로 저장한다.
-// html2canvas는 이미 로드된 웹폰트(Jua/Pretendard)를 canvas에 직접 그려서
-// 별도 폰트 임베드 없이도 폰트가 깨지지 않는다(임베드 방식의 수십 MB 비대화도 없음).
+// 결과 카드(#insta-card)를 화면에 보이는 색·CSS 그대로 PNG로 저장한다.
+// html-to-image는 SVG foreignObject로 실제 브라우저 렌더 엔진의 결과를 그대로 캡처해
+// 그라데이션·반투명 레이어의 색이 화면과 어긋나지 않는다(html2canvas는 자체 렌더러라 색이 진해짐).
 async function saveCardImage(card, nick) {
-  // 웹폰트가 완전히 로드된 뒤 캡처해야 첫 시도부터 폰트가 제대로 그려진다.
+  // 웹폰트가 완전히 로드된 뒤 캡처해야 첫 시도부터 폰트가 제대로 박힌다.
   if (document.fonts && document.fonts.ready) {
     try { await document.fonts.ready; } catch {}
   }
 
-  // 카드가 실제로 칠해진 배경색을 그대로 입혀 투명/잘림 방지.
+  // 캡처 시점에 카드가 실제로 칠해진 배경색을 그대로 입혀 투명/잘림 방지.
   const bg = getComputedStyle(card).backgroundColor;
 
-  const canvas = await html2canvas(card, {
-    scale: 3,                 // 고해상도(레티나/인스타 업로드용)
-    useCORS: true,            // 외부 리소스(있을 경우) CORS 허용
+  const dataUrl = await toPng(card, {
+    pixelRatio: 3,           // 고해상도(레티나/인스타 업로드용)
+    cacheBust: true,
     backgroundColor: bg && bg !== "rgba(0, 0, 0, 0)" ? bg : "#ffffff",
-    logging: false,
+    // 캡처 중 변형/애니메이션이 끼어들지 않도록 정적 스타일 고정
+    style: { transform: "none", animation: "none" },
   });
 
-  const dataUrl = canvas.toDataURL("image/png");
   const safeNick = (nick || "결과").replace(/[\\/:*?"<>|]/g, "");
   const a = document.createElement("a");
   a.href = dataUrl;
