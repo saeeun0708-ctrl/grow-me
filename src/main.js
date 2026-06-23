@@ -4,7 +4,7 @@ import { db, MODE } from "./lib/db.js";
 import { renderLanding } from "./screens/landing.js";
 import { renderOwner } from "./screens/owner.js";
 import { renderFeed } from "./screens/feed.js";
-import { renderResult } from "./screens/result.js";
+import { renderResult, renderSharedResult } from "./screens/result.js";
 import { renderOnboarding } from "./screens/onboarding.js";
 import { renderLoading } from "./components/loading.js";
 
@@ -70,6 +70,9 @@ async function router() {
       return renderOwner(app);
     case "feed":
       return renderFeed(app, param || "demo");
+    case "share":
+      // 공개 결과 뷰(비로그인): 친구가 공유 링크로 들어와 결과를 본다. 결제 영역은 제외.
+      return renderSharedResult(app, param || "demo");
     case "result":
       return renderResult(app);
     default:

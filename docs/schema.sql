@@ -60,6 +60,21 @@ language sql security definer set search_path = public as $$
 $$;
 grant execute on function public.get_owner_by_slug(text) to anon, authenticated;
 
+-- slug로 주인의 먹이 "단어 목록만" 조회 (비로그인 공개 결과 뷰용)
+-- ※ 보낸 사람 이름(sender_name)은 결제 언락 영역이므로 절대 반환하지 않는다.
+--    공개 결과 화면은 이 단어들로 캐릭터/성분표만 계산하고 누가 골랐는지는 가린다.
+drop function if exists public.get_feedbacks_by_slug(text);
+create or replace function public.get_feedbacks_by_slug(p_slug text)
+returns table(selected_words text[])
+language sql security definer set search_path = public as $$
+  select f.selected_words
+  from public.feedbacks f
+  join public.users u on u.id = f.owner_user_id
+  where u.share_slug = p_slug
+  order by f.created_at asc;
+$$;
+grant execute on function public.get_feedbacks_by_slug(text) to anon, authenticated;
+
 -- 먹이주기 (비로그인 지인도 호출) · 형식오류는 거부 (독립한 캐릭터도 먹이는 계속 받음)
 create or replace function public.submit_feedback(p_owner uuid, p_name text, p_words text[])
 returns void language plpgsql security definer set search_path = public as $$

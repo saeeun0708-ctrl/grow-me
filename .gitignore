@@ -7,3 +7,6 @@ dist
 *.log
 
 .vercel
+
+# 일시 비활성화한 env 백업 (시크릿 포함 — 커밋 금지)
+.env.local.*

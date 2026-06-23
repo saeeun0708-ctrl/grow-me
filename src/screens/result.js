@@ -1,58 +1,93 @@
 // 결과 화면: 심리검사 분석 스타일 (MBTI 느낌의 친구 분석 결과)
-import { navigate } from "../main.js";
+import { navigate, applyTheme } from "../main.js";
 import { db } from "../lib/db.js";
 import { decideStage, decideCharacter, CHARACTERS, WORD_TO_CATEGORY } from "../data/words.js";
 import { renderCharacter } from "../components/character.js";
+import { openShareSheet } from "../lib/share.js";
+import html2canvas from "html2canvas";
+
+// 진입점(시청자가 "나도 해볼래"로 들어올 주소) — 호스팅 도메인
+const ENTRY_URL = "grow-me-omega.vercel.app";
+
+// 결과 카드(#insta-card)를 폰트·CSS 그대로 PNG로 저장한다.
+// html2canvas는 이미 로드된 웹폰트(Jua/Pretendard)를 canvas에 직접 그려서
+// 별도 폰트 임베드 없이도 폰트가 깨지지 않는다(임베드 방식의 수십 MB 비대화도 없음).
+async function saveCardImage(card, nick) {
+  // 웹폰트가 완전히 로드된 뒤 캡처해야 첫 시도부터 폰트가 제대로 그려진다.
+  if (document.fonts && document.fonts.ready) {
+    try { await document.fonts.ready; } catch {}
+  }
+
+  // 카드가 실제로 칠해진 배경색을 그대로 입혀 투명/잘림 방지.
+  const bg = getComputedStyle(card).backgroundColor;
+
+  const canvas = await html2canvas(card, {
+    scale: 3,                 // 고해상도(레티나/인스타 업로드용)
+    useCORS: true,            // 외부 리소스(있을 경우) CORS 허용
+    backgroundColor: bg && bg !== "rgba(0, 0, 0, 0)" ? bg : "#ffffff",
+    logging: false,
+  });
+
+  const dataUrl = canvas.toDataURL("image/png");
+  const safeNick = (nick || "결과").replace(/[\\/:*?"<>|]/g, "");
+  const a = document.createElement("a");
+  a.href = dataUrl;
+  a.download = `나를키워줘_${safeNick}.png`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  return dataUrl;
+}
 
 // 캐릭터별 성격 분석 텍스트
 // desc: 줄바꿈(\n)으로 문단 구분 / hidden: "이런 타입은 " 다음에 붙는 보조 문장
 const ANALYSIS = {
   brain: {
     headline: "논리적이고 똑부러지는 지성미를 갖췄어요.",
-    desc: "친구들이 너를 떠올리며 고른 단어엔 '지적인' 면이 가장 많았어.\n논리적이고 깊이 있게 생각하는 모습, 꼼꼼하게 분석하고 핵심을 짚어내는 판단력. 그게 친구들 눈에 비친 너의 가장 큰 매력이야.",
-    hidden: "냉철해 보여도 속은 의외로 따뜻한 경우가 많아.",
+    desc: "친구들이 떠올리며 고른 단어엔 '지적인' 면이 가장 많았어요.\n논리적이고 깊이 있게 생각하는 모습, 꼼꼼하게 분석하고 핵심을 짚어내는 판단력. 그게 친구들 눈에 비친 가장 큰 매력이에요.",
+    hidden: "냉철해 보여도 속은 의외로 따뜻한 경우가 많아요.",
     emoji: "🧠",
   },
   charm: {
     headline: "눈을 뗄 수 없는 남다른 비주얼의 소유자예요.",
-    desc: "친구들이 너를 떠올릴 때 가장 많이 고른 건 '매력적인' 비주얼과 스타일이야.\n자기만의 분위기, 시선을 끄는 존재감, 거기에 자기관리에서 오는 자신감까지. 친구들 눈에 너는 그냥 지나치기 어려운 사람이야.",
-    hidden: "화려해 보여도 주변을 세심하게 챙기는 면이 숨어 있곤 해.",
+    desc: "친구들이 떠올릴 때 가장 많이 고른 건 '매력적인' 비주얼과 스타일이에요.\n자기만의 분위기, 시선을 끄는 존재감, 거기에 자기관리에서 오는 자신감까지. 친구들 눈엔 그냥 지나치기 어려운 사람이에요.",
+    hidden: "화려해 보여도 주변을 세심하게 챙기는 면이 숨어 있곤 해요.",
     emoji: "✨",
   },
   passion: {
     headline: "넘치는 열정과 추진력의 소유자예요.",
-    desc: "친구들이 고른 단어 중 가장 많았던 건 '열정적인' 너의 모습이야.\n한 번 정한 목표는 놓지 않는 끈기, 넘치는 에너지와 추진력. 함께 있으면 나도 뭔가 해내고 싶게 만드는 카리스마가 친구들 눈에 들어온 거야.",
-    hidden: "강해 보여도 의외로 주변을 잘 챙기는 다정함을 품고 있어.",
+    desc: "친구들이 고른 단어 중 가장 많았던 건 '열정적인' 모습이에요.\n한 번 정한 목표는 놓지 않는 끈기, 넘치는 에너지와 추진력. 함께 있으면 나도 뭔가 해내고 싶게 만드는 카리스마가 친구들 눈에 들어왔어요.",
+    hidden: "강해 보여도 의외로 주변을 잘 챙기는 다정함을 품고 있어요.",
     emoji: "🔥",
   },
   cute: {
     headline: "주변을 녹이는 사랑스러움의 결정체예요.",
-    desc: "친구들이 너를 떠올리며 가장 많이 고른 건 '사랑스러운' 모습이야.\n순수하고 발랄한 에너지, 보고 있으면 저도 모르게 웃게 되는 분위기. 친구들 눈엔 곁에 두고 싶은 사랑둥이로 비쳤어.",
-    hidden: "귀엽기만 한 것 같아도 속은 의외로 단단하고 생각이 깊은 경우가 많아.",
+    desc: "친구들이 떠올리며 가장 많이 고른 건 '사랑스러운' 모습이에요.\n순수하고 발랄한 에너지, 보고 있으면 저도 모르게 웃게 되는 분위기. 친구들 눈엔 곁에 두고 싶은 사랑둥이로 비쳤어요.",
+    hidden: "귀엽기만 한 것 같아도 속은 의외로 단단하고 생각이 깊은 경우가 많아요.",
     emoji: "🎀",
   },
   fun: {
     headline: "자리를 빛내는 타고난 분위기 메이커예요.",
-    desc: "친구들이 고른 단어엔 '유쾌한' 네가 가장 많았어.\n어떤 자리든 살아나게 만드는 분위기, 함께 있으면 시간 가는 줄 모르는 텐션. 친구들 눈에 너는 모임의 공기를 바꾸는 사람이야.",
-    hidden: "밝아 보여도 의외로 주변 눈치를 세심하게 살피는 면이 있어.",
+    desc: "친구들이 고른 단어엔 '유쾌한' 면이 가장 많았어요.\n어떤 자리든 살아나게 만드는 분위기, 함께 있으면 시간 가는 줄 모르는 텐션. 친구들 눈엔 모임의 공기를 바꾸는 사람이에요.",
+    hidden: "밝아 보여도 의외로 주변 눈치를 세심하게 살피는 면이 있어요.",
     emoji: "🎉",
   },
   warm: {
     headline: "같이 있으면 안정감 있고 따뜻한 존재예요.",
-    desc: "친구들이 너를 떠올리며 가장 많이 고른 건 '다정한' 모습이야.\n말 안 해도 알아주는 공감, 먼저 손 내미는 따뜻함. 친구들 눈엔 곁에 있으면 마음이 놓이는 사람으로 비쳤어.",
-    hidden: "다정하면서도 자기만의 확고한 생각을 가진 단단함을 함께 지니곤 해.",
+    desc: "친구들이 떠올리며 가장 많이 고른 건 '다정한' 모습이에요.\n말 안 해도 알아주는 공감, 먼저 손 내미는 따뜻함. 친구들 눈엔 곁에 있으면 마음이 놓이는 사람으로 비쳤어요.",
+    hidden: "다정하면서도 자기만의 확고한 생각을 가진 단단함을 함께 지니곤 해요.",
     emoji: "🤗",
   },
   talent: {
     headline: "무엇이든 잘하는 다재다능한 능력자예요.",
-    desc: "친구들이 고른 단어 중 가장 많았던 건 '재주 많은' 너야.\n뭘 시켜도 해내는 손재주와 다재다능함. 여러 분야에서 빛을 발하는 모습이 친구들 눈에 들어온 거야.",
-    hidden: "재능이 많은 만큼, 어디에 집중할지 즐거운 고민을 안고 살기도 해.",
+    desc: "친구들이 고른 단어 중 가장 많았던 건 '재주 많은' 면이에요.\n뭘 시켜도 해내는 손재주와 다재다능함. 여러 분야에서 빛을 발하는 모습이 친구들 눈에 들어왔어요.",
+    hidden: "재능이 많은 만큼, 어디에 집중할지 즐거운 고민을 안고 살기도 해요.",
     emoji: "🌟",
   },
   mystery: {
     headline: "알수록 더 알고 싶은 신비주의자예요.",
-    desc: "친구들이 너를 떠올리며 가장 많이 고른 건 '신비로운' 분위기야.\n쉽게 읽히지 않는 개성, 남들과 다른 시선. 알수록 더 궁금해지는 묘한 매력이 친구들 눈에 비친 너야.",
-    hidden: "차가워 보여도 가까운 사람에겐 깊은 애정을 보이는 경우가 많아.",
+    desc: "친구들이 떠올리며 가장 많이 고른 건 '신비로운' 분위기예요.\n쉽게 읽히지 않는 개성, 남들과 다른 시선. 알수록 더 궁금해지는 묘한 매력이 친구들 눈에 비쳤어요.",
+    hidden: "차가워 보여도 가까운 사람에겐 깊은 애정을 보이는 경우가 많아요.",
     emoji: "🔮",
   },
 };
@@ -146,6 +181,19 @@ function rSection({ sym, title, accent, body }) {
     </div>`;
 }
 
+// 잠금 래퍼: 비결제 시 내용을 블러 처리하고 가운데에 해제 CTA(.unlock-cta)를 띄운다.
+// 모든 .unlock-cta는 같은 핸들러로 묶여, 하나만 눌러도 전체 잠금이 해제된다.
+function lockWrap(inner, label = "잠금 해제 (990원)") {
+  return `
+    <div class="lock-wrap">
+      <div class="lock-blur">${inner}</div>
+      <button class="lock-overlay unlock-cta" type="button">
+        <span class="lock-overlay-ic">🔒</span>
+        <span class="lock-overlay-txt">${label}</span>
+      </button>
+    </div>`;
+}
+
 // 궁합 미니 카드 (best=환상의 짝꿍 / spark=티키타카)
 function matchCard(kind, charCode, reason) {
   const c = CHARACTERS[charCode];
@@ -160,6 +208,22 @@ function matchCard(kind, charCode, reason) {
       </div>
       <div class="match-name">${c.name}</div>
       <p class="match-why">${reason}</p>
+    </div>`;
+}
+
+// 아바타용 하트 아이콘 — 연핑크 배경 위에 진핑크(테마색)로 채워 표시
+const HEART_ICON = `<svg viewBox="0 0 24 24" width="15" height="15" fill="var(--primary)" style="display:block"><path d="M12 20.5 C12 20.5 3.5 14.8 3.5 9 C3.5 6.1 5.7 4.2 8.2 4.2 C10 4.2 11.4 5.3 12 6.6 C12.6 5.3 14 4.2 15.8 4.2 C18.3 4.2 20.5 6.1 20.5 9 C20.5 14.8 12 20.5 12 20.5 Z"/></svg>`;
+
+// 잠금 리스트 한 줄: 아바타(하트 아이콘) + 이름 + 고른 단어 칩들
+function fbRow(name, words) {
+  const chips = words.map((w) => `<span class="fb-word">${w}</span>`).join("");
+  return `
+    <div class="row">
+      <div class="fb-head">
+        <span class="fb-avatar">${HEART_ICON}</span>
+        <span class="fb-name">${name}</span>
+      </div>
+      <div class="fb-words">${chips}</div>
     </div>`;
 }
 
@@ -182,11 +246,9 @@ function tallyByCategory(allWords) {
     .sort((a, b) => b.count - a.count);
 }
 
-export async function renderResult(app) {
-  const me = await db.ensureMyUser();
-  if (!me) return navigate("/");
-
-  const feedbacks = await db.getMyFeedbacks();
+// 피드백 목록에서 결과 화면이 쓰는 모든 파생값을 한 번에 계산한다.
+// 내 결과(renderResult)·공개 결과(renderSharedResult) 양쪽이 같은 모델을 공유한다.
+function computeModel(feedbacks, nick) {
   const count = feedbacks.length;
   const stage = decideStage(count);
   const allWords = feedbacks.flatMap((f) => f.words);
@@ -200,7 +262,6 @@ export async function renderResult(app) {
     return b.count - a.count;
   });
   const totalVotes = allWords.length;
-  const unlocked = me.is_unlocked;
   const form = code ? CHARACTERS[code] : null;
   const analysis = code ? ANALYSIS[code] : null;
   const glowColor = form ? form.color : "#FF7FA3";
@@ -208,27 +269,10 @@ export async function renderResult(app) {
   const secondForm = secondCat ? CHARACTERS[secondCat.code] : null;
   const secondAxis = secondCat ? AXIS[secondCat.code] : null;
   const compat = code ? COMPAT[code] : null;
-  const nick = me.nickname || "나";
+  const maxCatCount = catRanking.length ? catRanking[0].count : 0;
 
-  if (count === 0) {
-    app.innerHTML = `
-      <div class="screen">
-        <div class="top"><button class="back" id="back">←</button><h1>친구들이 보는 나의 모습</h1></div>
-        <div class="center-screen">
-          ${renderCharacter("cute", 1, 150)}
-          <h2>아직 결과가 없어요</h2>
-          <p class="muted">친구에게 링크를 공유해<br/>먹이를 받아보세요!</p>
-        </div>
-        <button class="btn" id="go">친구에게 공유하기</button>
-      </div>`;
-    app.querySelector("#back").onclick = () => navigate("/owner");
-    app.querySelector("#go").onclick = () => navigate("/owner");
-    return;
-  }
-
-  // 카테고리 바 HTML
-  const maxCatCount = catRanking[0].count;
-  const catBarsHtml = catRanking
+  // 카테고리 바 HTML — 상위 3개는 무료, 4위 이하는 잠금 대상(공개 뷰에선 제외)
+  const catRows = catRanking
     .filter((c) => c.count > 0)
     .map((c) => {
       const char = CHARACTERS[c.code];
@@ -246,8 +290,9 @@ export async function renderResult(app) {
           </div>
           <span class="cat-pct">${pct}%</span>
         </div>`;
-    })
-    .join("");
+    });
+  const catTop3Html = catRows.slice(0, 3).join("");
+  const catRestHtml = catRows.slice(3).join("");
 
   // 키워드 칩 (상위 8개): 2명 이상이 고른 단어만 강조, 숫자 배지 앞 공백
   const kwHtml = wordRanking
@@ -260,11 +305,10 @@ export async function renderResult(app) {
 
   const top3kw = wordRanking.slice(0, 3).map((w) => w.word);
 
-  // 성격 종합 분석 (상위 카테고리 + 키워드 합성) — 카드 아래에 표시
+  // 성격 종합 분석 (상위 카테고리 + 키워드 합성)
   const comprehensive = buildComprehensive({ catRanking, nick });
 
-  // 저장 카드용 미니 성분표 (상위 3개 카테고리) — 본문 성분표와 같은 동점 보정 적용
-  // 이모지 대신 1·2·3위 순위 뱃지로 표시
+  // 저장 카드용 미니 성분표 (상위 3개 카테고리) — 1·2·3위 순위 뱃지로 표시
   const icBarsHtml = catRanking
     .filter((c) => c.count > 0)
     .slice(0, 3)
@@ -284,8 +328,92 @@ export async function renderResult(app) {
     })
     .join("");
 
-  // 진입점(시청자가 "나도 해볼래"로 들어올 주소) — 호스팅 도메인 또는 현재 origin
-  const entryUrl = "grow-me-omega.vercel.app";
+  return {
+    count, stage, code, form, analysis, glowColor, totalVotes,
+    catRanking, secondCat, secondForm, secondAxis, compat,
+    catTop3Html, catRestHtml, kwHtml, top3kw, icBarsHtml, comprehensive,
+  };
+}
+
+// 자랑용 요약 카드(#insta-card) — 이미지 저장 대상이자 공유 미리보기. 양쪽 화면 공용.
+function instaCardHtml(m, nick) {
+  return `
+      <div class="insta-card-outer">
+        <div class="insta-card" id="insta-card">
+          <div class="ic-dots-bg"></div>
+          <div class="ic-inner">
+            <div class="ic-subtitle">${m.count}명의 친구들이 키워준</div>
+            <div class="ic-maintitle">${nick}님의 매력은?</div>
+
+            <div style="position:relative;display:flex;justify-content:center;margin:4px 0 4px">
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,${m.glowColor}66,transparent 70%)"></div>
+              <div class="grow-in" style="position:relative">${renderCharacter(m.code, m.stage, 160, false)}</div>
+            </div>
+
+            <div class="ic-name">${m.form ? m.form.name : "성장 중"}</div>
+            ${m.form ? `<div class="ic-tagline">"${m.form.tagline}"</div>` : ""}
+            ${m.analysis ? `<div class="ic-headline">${m.analysis.headline}</div>` : ""}
+
+            <div class="ic-divider"></div>
+
+            <div class="ic-keywords">
+              ${m.top3kw.map((w) => `<span class="ic-kw">#${w}</span>`).join("")}
+            </div>
+
+            ${m.icBarsHtml ? `<div class="ic-mini-bars">${m.icBarsHtml}</div>` : ""}
+
+            <div class="ic-footer">
+              <span class="ic-brand">🌱 나를 키워줘</span>
+              <span class="ic-url">${ENTRY_URL}</span>
+            </div>
+          </div>
+        </div>
+      </div>`;
+}
+
+// 결과 공유용 카카오 메시지 구성 (자랑 톤)
+function resultShareKakao(m, nick) {
+  const formName = m.form ? m.form.name : "성장 중인 캐릭터";
+  return {
+    title: `친구들이 본 ${nick}님은… "${formName}" 🌱`,
+    description: m.analysis ? m.analysis.headline : `${nick}님이 친구들 눈에 어떻게 보이는지 확인해보세요!`,
+    imageUrl: "https://grow-me-omega.vercel.app/feed-image.png",
+    buttonTitle: "결과 보러가기",
+  };
+}
+
+export async function renderResult(app) {
+  const me = await db.ensureMyUser();
+  if (!me) return navigate("/");
+
+  const feedbacks = await db.getMyFeedbacks();
+  const nick = me.nickname || "나";
+  const m = computeModel(feedbacks, nick);
+  const {
+    count, stage, code, form, analysis, glowColor,
+    secondCat, secondForm, secondAxis, compat,
+    catTop3Html, catRestHtml, kwHtml, comprehensive,
+  } = m;
+  const unlocked = me.is_unlocked;
+
+  if (count === 0) {
+    app.innerHTML = `
+      <div class="screen">
+        <div class="top"><button class="back" id="back">←</button><h1>친구들이 보는 나의 모습</h1></div>
+        <div class="center-screen">
+          ${renderCharacter("cute", 1, 150)}
+          <h2>아직 결과가 없어요</h2>
+          <p class="muted">친구에게 링크를 공유해<br/>먹이를 받아보세요!</p>
+        </div>
+        <button class="btn" id="go">친구에게 공유하기</button>
+      </div>`;
+    app.querySelector("#back").onclick = () => navigate("/owner");
+    app.querySelector("#go").onclick = () => navigate("/owner");
+    return;
+  }
+
+  // 공유 링크: 친구가 결제 영역 없는 공개 결과 뷰로 들어온다
+  const shareUrl = `${location.origin}${location.pathname}#/share/${me.share_slug}`;
 
   app.innerHTML = `
     <div class="screen result-screen">
@@ -294,41 +422,8 @@ export async function renderResult(app) {
         <h1>친구들이 보는 나의 모습</h1>
       </div>
 
-      <!-- 요약 카드 (hero) — 첫 진입 시 전체 개요 + 이미지 저장 대상 -->
-      <div class="insta-card-outer">
-        <div class="insta-card" id="insta-card">
-          <div class="ic-dots-bg"></div>
-          <div class="ic-inner">
-            <!-- 타이틀: 서브('N명의 친구가 본') + 메인('{닉네임}님의 매력은?') -->
-            <div class="ic-subtitle">${count}명의 친구들이 키워준</div>
-            <div class="ic-maintitle">${nick}님의 매력은?</div>
-
-            <div style="position:relative;display:flex;justify-content:center;margin:4px 0 4px">
-              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,${glowColor}66,transparent 70%)"></div>
-              <div class="grow-in" style="position:relative">${renderCharacter(code, stage, 160, false)}</div>
-            </div>
-
-            <div class="ic-name">${form ? form.name : "성장 중"}</div>
-            ${form ? `<div class="ic-tagline">"${form.tagline}"</div>` : ""}
-            ${analysis ? `<div class="ic-headline">${analysis.headline}</div>` : ""}
-
-            <div class="ic-divider"></div>
-
-            <!-- 가장 많이 받은 키워드 TOP3 (해시태그 칩) -->
-            <div class="ic-keywords">
-              ${top3kw.map((w) => `<span class="ic-kw">#${w}</span>`).join("")}
-            </div>
-
-            <!-- 매력 성분표 TOP3 (가로 bar) -->
-            ${icBarsHtml ? `<div class="ic-mini-bars">${icBarsHtml}</div>` : ""}
-
-            <div class="ic-footer">
-              <span class="ic-brand">🌱 나를 키워줘</span>
-              <span class="ic-url">${entryUrl}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- 요약 카드 (hero) — 첫 진입 시 전체 개요 + 이미지 저장 대상(카드 탭 시 저장) -->
+      ${instaCardHtml(m, nick)}
 
       <!-- 캐릭터 분석 (결과 카드 바로 아래) — 1위 캐릭터의 성격 특성·매력·비춰지는 모습 -->
       ${analysis ? `
@@ -341,7 +436,8 @@ export async function renderResult(app) {
 
       <div class="analysis-section">
         <div class="section-label">📊 나의 매력 성분표</div>
-        <div class="cat-bars">${catBarsHtml}</div>
+        <div class="cat-bars">${unlocked ? catTop3Html + catRestHtml : catTop3Html}</div>
+        ${!unlocked && catRestHtml ? lockWrap(`<div class="cat-bars">${catRestHtml}</div>`) : ""}
       </div>
 
       <div class="analysis-section">
@@ -354,7 +450,19 @@ export async function renderResult(app) {
       <div class="analysis-section">
         <div class="section-label">🔍 ${nick}님 종합 분석</div>
         <div class="section-sub">친구들이 골라준 단어 전체를 종합해 ${nick}님의 성격을 읽어봤어요.</div>
-        ${comprehensive.paras.map((p) => `<p class="personality-desc">${p}</p>`).join("")}
+        ${
+          unlocked
+            ? `<p class="personality-desc">${comprehensive.paras[0]}</p>
+               ${comprehensive.paras.length > 1 ? `
+                 <div class="more-wrap" id="comp-more">
+                   <div class="more-inner">
+                     ${comprehensive.paras.slice(1).map((p) => `<p class="personality-desc">${p}</p>`).join("")}
+                   </div>
+                 </div>
+                 <button class="more-btn" id="comp-more-btn" aria-expanded="false">더보기 <span class="more-arrow">▾</span></button>
+               ` : ""}`
+            : lockWrap(comprehensive.paras.map((p) => `<p class="personality-desc">${p}</p>`).join(""))
+        }
       </div>` : ""}
 
       <!-- ④ 반전 매력 (2위 캐릭터 기반) -->
@@ -385,37 +493,223 @@ export async function renderResult(app) {
       <!-- ⑧ 잠금 섹션 — 중복 제거 -->
       <div class="lock-area" style="margin-top:10px">
         <div class="lock-title">👀 누가 어떤 말을 골랐을까?</div>
+        <div class="lock-sub">${unlocked ? `친구 ${count}명이 골라준 단어를 모두 확인했어요` : "친구별로 어떤 단어를 골랐는지 확인해보세요"}</div>
         ${
           unlocked
-            ? `<div class="lock-list" style="margin-top:12px">${feedbacks
-                .map((f) => `<div class="row"><span class="nm">${f.name}</span><span class="ws">${f.words.join(", ")}</span></div>`)
+            ? `<div class="lock-list">${feedbacks
+                .map((f) => fbRow(f.name, f.words))
                 .join("")}</div>`
-            : `<div class="lock-list blur" style="margin-top:12px">${feedbacks
+            : `<div class="lock-list blur">${feedbacks
                 .slice(0, 3)
-                .map((f) => `<div class="row"><span class="nm">●●●</span><span class="ws">${f.words.slice(0, 3).join(", ")} …</span></div>`)
+                .map((f) => fbRow("●●●", f.words.slice(0, 4)))
                 .join("")}</div>
-               <button class="btn" id="unlock" style="margin-top:14px">전체 보기 · 990원</button>`
+               <button class="btn unlock-cta" type="button" style="margin-top:16px">🔒 잠금 해제 (990원)</button>`
         }
       </div>
-
-      <div class="dev-hint">🛠️ 이미지 저장은 5단계(html2canvas), 결제는 6단계(토스페이먼츠)에서 구현 예정</div>
     </div>
 
-    <!-- ③ 저장 CTA를 하단 sticky로 — 스크롤 내내 공유 전환 가능 -->
+    <!-- 하단 sticky: 공유 메인 CTA (저장은 결과 카드 탭으로 처리) -->
     <div class="save-dock">
-      <button class="btn" id="save">결과 카드 저장하기 📸</button>
+      <button class="btn" id="share-bottom">친구에게 공유하기 💌</button>
     </div>
   `;
 
   app.querySelector("#back").onclick = () => navigate("/owner");
-  app.querySelector("#save").onclick = () => alert("📸 이미지 저장은 5단계에서 구현합니다!");
 
-  const unlockBtn = app.querySelector("#unlock");
-  if (unlockBtn)
-    unlockBtn.onclick = async () => {
-      if (confirm("(더미 결제) 990원을 결제하고 전체를 볼까요?")) {
-        await db.setUnlocked(true);
-        renderResult(app);
+  // 결과 공유: 하단 버튼이 공유 시트를 연다(공개 결과 뷰 링크)
+  const openResultShare = () =>
+    openShareSheet({
+      sheetTitle: "친구에게 결과 공유하기",
+      url: shareUrl,
+      kakao: resultShareKakao(m, nick),
+      onCopied: () => {
+        const b = app.querySelector("#share-bottom");
+        if (b) {
+          b.textContent = "링크 복사 완료! 💌";
+          setTimeout(() => (b.textContent = "친구에게 공유하기 💌"), 1800);
+        }
+      },
+    });
+  app.querySelector("#share-bottom").onclick = openResultShare;
+
+  // 종합 분석 더보기: 첫 문단만 보이고, 누르면 나머지 문단을 펼친다
+  const compMoreBtn = app.querySelector("#comp-more-btn");
+  if (compMoreBtn) {
+    const moreWrap = app.querySelector("#comp-more");
+    compMoreBtn.onclick = () => {
+      const open = moreWrap.classList.toggle("open");
+      compMoreBtn.setAttribute("aria-expanded", String(open));
+      compMoreBtn.innerHTML = open
+        ? `접기 <span class="more-arrow">▴</span>`
+        : `더보기 <span class="more-arrow">▾</span>`;
+    };
+  }
+
+  // 결과 카드 탭 → 이미지로 저장.
+  const card = app.querySelector("#insta-card");
+  if (card) {
+    let saving = false;
+    card.classList.add("savable");
+    card.onclick = async () => {
+      if (saving) return;
+      saving = true;
+      try {
+        await saveCardImage(card, nick);
+      } catch (e) {
+        console.error("[result] 카드 저장 실패", e);
+        alert("이미지 저장에 실패했어요. 다시 시도해 주세요.");
+      } finally {
+        setTimeout(() => { saving = false; }, 1600);
       }
     };
+  }
+
+  // 오픈 이벤트: 결제 연동 전까지, 어떤 잠금 해제 버튼을 눌러도 무료로 전체를 공개한다.
+  // (한 번 해제하면 is_unlocked=true 캐시 → 모든 잠금 섹션이 동시에 열린다)
+  const unlockAll = async () => {
+    alert("안심하세요! 당분간은 결제 없이 결과를 확인할 수 있어요. ");
+    await db.setUnlocked(true);
+    renderResult(app);
+  };
+  app.querySelectorAll(".unlock-cta").forEach((b) => (b.onclick = unlockAll));
+}
+
+// 공개 결과 뷰(비로그인): 친구가 공유 링크(#/share/:slug)로 들어와 결과를 본다.
+// 결제(언락) 영역(4위 이하 순위·종합분석 후반부·반전 매력·누가 골랐는지)은 깔끔히 제외하고,
+// 무료로 공개되는 부분만 보여준다. 하단은 "나도 만들기"로 바이럴 루프를 연결한다.
+export async function renderSharedResult(app, slug) {
+  app.innerHTML = renderLoadingShared();
+
+  let owner;
+  try {
+    owner = await db.getOwnerBySlug(slug);
+  } catch {
+    owner = null;
+  }
+
+  if (!owner) {
+    app.innerHTML = `
+      <div class="screen">
+        <div class="center-screen">
+          ${renderCharacter("cute", 0, 150)}
+          <h2>결과를 찾을 수 없어요</h2>
+          <p class="muted">링크가 올바른지 확인해주세요</p>
+        </div>
+        <button class="btn" id="make">나도 내 캐릭터 키우기 🌱</button>
+      </div>`;
+    app.querySelector("#make").onclick = () => navigate("/");
+    return;
+  }
+
+  // 친구는 주인의 테마로 본다
+  applyTheme(owner.theme);
+
+  let feedbacks = [];
+  try {
+    feedbacks = await db.getFeedbacksBySlug(slug);
+  } catch {
+    feedbacks = [];
+  }
+
+  const nick = owner.nickname || "친구";
+  const m = computeModel(feedbacks, nick);
+  const { count, form, analysis, catTop3Html, kwHtml, secondCat, secondForm, secondAxis, compat } = m;
+
+  if (count === 0) {
+    app.innerHTML = `
+      <div class="screen">
+        <div class="center-screen">
+          ${renderCharacter("cute", 1, 150)}
+          <h2>${nick}님은 아직 자라는 중</h2>
+          <p class="muted">아직 받은 먹이가 없어요.<br/>조금 뒤에 다시 와주세요!</p>
+        </div>
+        <button class="btn" id="make">나도 내 캐릭터 키우기 🌱</button>
+      </div>`;
+    app.querySelector("#make").onclick = () => navigate("/");
+    return;
+  }
+
+  app.innerHTML = `
+    <div class="screen result-screen">
+      <div class="top">
+        <h1>${nick}님이 친구들에게 보이는 모습</h1>
+      </div>
+
+      <!-- 요약 카드 (hero) -->
+      ${instaCardHtml(m, nick)}
+
+      <!-- 캐릭터 분석 -->
+      ${analysis ? `
+      <div class="analysis-section" style="margin-top:20px">
+        <div class="section-label">🧬 캐릭터 분석</div>
+        <div class="section-sub">${nick}님은 <b style="color:var(--primary)">${form.name}</b> 유형이에요. "${form.tagline}"</div>
+        ${analysis.desc.split("\n").map((p) => `<p class="personality-desc">${p}</p>`).join("")}
+        ${analysis.hidden ? `<p class="personality-hint">💡 이런 타입은 ${analysis.hidden}</p>` : ""}
+      </div>` : ""}
+
+      <!-- 매력 성분표 (공개분: TOP3만) -->
+      <div class="analysis-section">
+        <div class="section-label">📊 ${nick}님의 매력 성분표</div>
+        <div class="cat-bars">${catTop3Html}</div>
+      </div>
+
+      <!-- 많이 고른 키워드 -->
+      <div class="analysis-section">
+        <div class="section-label">💬 친구들이 많이 고른 키워드</div>
+        <div class="kw-list">${kwHtml}</div>
+      </div>
+
+      <!-- 종합 분석은 유료 영역이라 공개 뷰에서 제외 -->
+
+      <!-- 반전 매력 (2위 캐릭터 기반) — 공개 -->
+      ${secondForm && secondAxis ? rSection({
+        sym: "spark", title: "사실 이런 면도 숨어 있어요", accent: true,
+        body: `
+          <div class="flip-row">
+            <div class="flip-char" style="background:radial-gradient(circle,${secondForm.color}40,transparent 68%)">
+              ${renderCharacter(secondCat.code, 3, 78, false)}
+            </div>
+            <div style="flex:1">
+              <div class="flip-title">숨은 매력, <span style="color:var(--primary)">${secondForm.name}</span></div>
+              <p class="flip-desc">겉으론 ${form.name}이지만, 친구들은 ${nick}님에게서 <b style="color:var(--ink)">${secondAxis}</b>의 반전 매력도 느꼈대요. ${secondForm.tagline} 같은 면이 살짝 숨어 있어요.</p>
+            </div>
+          </div>`,
+      }) : ""}
+
+      <!-- 궁합 -->
+      ${compat ? rSection({
+        sym: "heart", title: `${nick}님과 잘 맞는 유형은?`, accent: true,
+        body: `
+          <div class="match-row">
+            ${matchCard("best", compat.match, compat.matchWhy)}
+            ${matchCard("spark", compat.clash, compat.clashWhy)}
+          </div>`,
+      }) : ""}
+
+      <!-- 바이럴 유도 카드 -->
+      <div class="share-cta-card">
+        <div class="share-cta-emoji">🌱</div>
+        <div class="share-cta-title">나도 친구들이 보는 내 모습이 궁금하다면?</div>
+        <p class="share-cta-sub">30초면 내 캐릭터를 키울 수 있어요</p>
+      </div>
+    </div>
+
+    <!-- 하단 sticky: 나도 만들기를 메인 CTA로 (바이럴 루프) -->
+    <div class="save-dock">
+      <button class="btn" id="make">나도 내 캐릭터 키우기 🌱</button>
+    </div>
+  `;
+
+  app.querySelector("#make").onclick = () => navigate("/");
+}
+
+// 공개 결과 뷰 로딩 표시 (간단)
+function renderLoadingShared() {
+  return `
+    <div class="screen">
+      <div class="center-screen">
+        ${renderCharacter("cute", 1, 110)}
+        <p class="muted">결과를 불러오는 중…</p>
+      </div>
+    </div>`;
 }

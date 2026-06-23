@@ -64,6 +64,13 @@ const local = {
       words: f.selected_words,
     }));
   },
+  async getFeedbacksBySlug(_slug) {
+    // 단일 사용자 데모: slug 무관하게 내 먹이를 그대로 반환(공개 결과 뷰용)
+    return lload().feedbacks.map((f) => ({
+      name: f.sender_name,
+      words: f.selected_words,
+    }));
+  },
   async submitFeedback(_ownerId, name, words) {
     const s = lload();
     // 독립한 캐릭터도 먹이는 계속 받을 수 있다(차단하지 않음)
@@ -170,6 +177,18 @@ const remote = {
       .order("created_at", { ascending: true });
     return (data || []).map((r) => ({
       name: r.sender_name,
+      words: r.selected_words,
+    }));
+  },
+  async getFeedbacksBySlug(slug) {
+    // 비로그인 공개 결과 뷰용: slug로 주인의 먹이 목록을 공개 RPC로 조회.
+    // ※ 보낸 사람 이름은 결제(언락) 영역이라 RPC가 단어만 반환한다(name 비움).
+    const { data, error } = await supabase.rpc("get_feedbacks_by_slug", {
+      p_slug: slug,
+    });
+    if (error) throw error;
+    return (data || []).map((r) => ({
+      name: "",
       words: r.selected_words,
     }));
   },

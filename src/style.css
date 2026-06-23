@@ -185,10 +185,28 @@ body{
 .lock-area{margin-top:16px; padding:16px; border-radius:18px; background:#fff; box-shadow:0 4px 16px rgba(120,90,110,.08); text-align:center}
 .lock-area .blur{filter:blur(6px); opacity:.7; pointer-events:none; user-select:none}
 .lock-title{font-family:'Jua',sans-serif; font-size:17px; color:var(--ink)}
-.lock-list{display:flex; flex-direction:column; gap:8px; margin-top:12px; text-align:left}
-.lock-list .row{display:flex; justify-content:space-between; gap:10px; background:#fcf6f8; border:1px solid var(--line); border-radius:12px; padding:10px 12px; font-size:14px}
-.lock-list .row .nm{font-weight:800; color:var(--ink)}
-.lock-list .row .ws{color:var(--ink2); font-size:13px}
+.lock-sub{font-size:12.5px; color:var(--ink2); margin-top:4px}
+.lock-list{display:flex; flex-direction:column; gap:10px; margin-top:14px; text-align:left}
+/* 사람별 카드: 위쪽에 아바타+이름, 아래쪽에 고른 단어 칩 */
+.lock-list .row{display:block; background:#fcf6f8; border:1px solid var(--line); border-radius:14px; padding:12px 13px}
+.lock-list .fb-head{display:flex; align-items:center; gap:8px; margin-bottom:9px}
+.lock-list .fb-avatar{flex:0 0 auto; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-family:'Jua',sans-serif; font-size:13px; line-height:1; background:var(--glow)}
+.lock-list .fb-name{font-weight:800; color:var(--ink); font-size:14.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.lock-list .fb-words{display:flex; flex-wrap:wrap; gap:6px}
+.lock-list .fb-word{font-size:12.5px; line-height:1; padding:6px 11px; border-radius:999px; background:#fff;
+  color:var(--primary-dark); border:1px solid var(--line); font-weight:700; white-space:nowrap}
+
+/* 공통 잠금 래퍼: 내용 블러 + 가운데 해제 CTA (종합 분석/반전 매력/성분표 4위~ 등) */
+.lock-wrap{position:relative; overflow:hidden; border-radius:14px; margin-top:6px}
+.lock-wrap .lock-blur{filter:blur(6px); opacity:.7; pointer-events:none; user-select:none}
+.lock-overlay{position:absolute; inset:0; width:100%; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:8px; border:none; cursor:pointer;
+  background:linear-gradient(180deg, rgba(255,255,255,.25), rgba(255,255,255,.55)); border-radius:14px}
+.lock-overlay .lock-overlay-ic{font-size:22px; line-height:1; filter:drop-shadow(0 2px 4px rgba(0,0,0,.12))}
+.lock-overlay .lock-overlay-txt{font-family:'Jua',sans-serif; font-size:14px; color:var(--primary-dark);
+  background:#fff; padding:9px 18px; border-radius:999px; box-shadow:0 6px 16px rgba(120,90,110,.18)}
+.lock-overlay:active{transform:scale(.98)}
 
 /* 완료/중앙 화면 */
 .center-screen{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:8px; padding:0 24px}
@@ -241,14 +259,32 @@ body{
 }
 
 /* ── 결과 분석 화면 (심리검사 스타일) ── */
-.result-screen{padding-bottom:96px}
+.result-screen{padding-bottom:128px}
 
-/* 저장 CTA 하단 고정 바 */
+/* 하단 고정 CTA 바 (공유 메인 + 저장/공유 보조) */
 .save-dock{
   position:fixed; bottom:0; left:50%; transform:translateX(-50%);
-  width:min(430px,100%); padding:10px 16px 18px; z-index:20;
+  width:min(430px,100%); padding:10px 16px 14px; z-index:20;
+  display:flex; flex-direction:column; align-items:center; gap:2px;
   background:linear-gradient(transparent, var(--bg) 38%);
 }
+.save-dock .btn{ width:100% }
+.save-dock .btn.text{ margin-top:2px }
+
+/* 결과 카드 탭 → 이미지 저장 안내 (카드 바로 아래) */
+/* 탭하면 저장되는 카드: 누를 수 있다는 어포던스 */
+.insta-card.savable{ cursor:pointer; transition:transform .12s ease, box-shadow .2s }
+.insta-card.savable:active{ transform:scale(.985) }
+
+/* 공개 결과 뷰 하단 바이럴 유도 카드 */
+.share-cta-card{
+  margin-top:18px; padding:22px 18px; text-align:center;
+  border-radius:22px; border:2px dashed var(--primary);
+  background:var(--card-top, #fff);
+}
+.share-cta-emoji{ font-size:34px; line-height:1 }
+.share-cta-title{ font-family:'Jua',sans-serif; font-size:17px; color:var(--ink); margin-top:8px; line-height:1.4 }
+.share-cta-sub{ font-size:13px; color:var(--ink3); margin-top:6px }
 
 .friends-pill{
   display:inline-flex; align-items:center;
@@ -300,6 +336,16 @@ body{
 .personality-hint{
   font-size:13.5px; line-height:1.7; color:var(--ink2); margin:4px 0 0; word-break:keep-all;
 }
+/* 종합 분석 더보기: 펼치기 전엔 높이 0으로 접고, .open 시 펼친다 */
+.more-wrap{display:grid; grid-template-rows:0fr; transition:grid-template-rows .35s ease}
+.more-wrap .more-inner{min-height:0; overflow:hidden}
+.more-wrap.open{grid-template-rows:1fr}
+.more-btn{
+  display:inline-flex; align-items:center; gap:4px; margin-top:6px; padding:7px 14px;
+  border:1.5px solid var(--line); border-radius:999px; background:#fff;
+  font-size:13px; font-weight:700; color:var(--primary-dark); cursor:pointer;
+}
+.more-btn .more-arrow{font-size:11px; line-height:1}
 .hidden-trait-inline{
   display:flex; flex-direction:column; gap:3px;
   border-top:1px solid var(--line); margin-top:12px; padding-top:10px;
