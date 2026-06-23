@@ -259,7 +259,7 @@ body{
 }
 
 /* ── 결과 분석 화면 (심리검사 스타일) ── */
-.result-screen{padding-bottom:128px}
+.result-screen{padding-bottom:96px}
 
 /* 하단 고정 CTA 바 (공유 메인 + 저장/공유 보조) */
 .save-dock{
@@ -276,15 +276,39 @@ body{
 .insta-card.savable{ cursor:pointer; transition:transform .12s ease, box-shadow .2s }
 .insta-card.savable:active{ transform:scale(.985) }
 
-/* 공개 결과 뷰 하단 바이럴 유도 카드 */
+/* 공개 결과 뷰 하단 바이럴 유도 카드 (모던 그라데이션 카드) */
 .share-cta-card{
-  margin-top:18px; padding:22px 18px; text-align:center;
-  border-radius:22px; border:2px dashed var(--primary);
-  background:var(--card-top, #fff);
+  position:relative; overflow:hidden; display:block; width:100%;
+  font-family:inherit; cursor:pointer; -webkit-appearance:none; appearance:none;
+  margin-top:18px; padding:28px 22px 26px; text-align:center;
+  border-radius:26px; border:1px solid rgba(255,255,255,.7);
+  background:linear-gradient(165deg, var(--card-top), #fff 78%);
+  box-shadow:0 16px 36px rgba(120,90,110,.14);
+  transition:transform .12s ease, box-shadow .2s;
 }
-.share-cta-emoji{ font-size:34px; line-height:1 }
-.share-cta-title{ font-family:'Jua',sans-serif; font-size:17px; color:var(--ink); margin-top:8px; line-height:1.4 }
-.share-cta-sub{ font-size:13px; color:var(--ink3); margin-top:6px }
+.share-cta-card:active{ transform:scale(.985); box-shadow:0 10px 24px rgba(120,90,110,.16) }
+/* 상단에 은은한 컬러 글로우 */
+.share-cta-card::before{
+  content:""; position:absolute; top:-60px; left:50%; transform:translateX(-50%);
+  width:200px; height:120px; border-radius:50%;
+  background:radial-gradient(circle, var(--glow), transparent 70%); opacity:.8; pointer-events:none;
+}
+.share-cta-badge{
+  position:relative; width:60px; height:60px; margin:0 auto;
+  display:flex; align-items:center; justify-content:center; font-size:30px; line-height:1;
+  border-radius:50%; background:#fff;
+  box-shadow:0 10px 24px rgba(255,127,163,.3), inset 0 0 0 1px rgba(255,255,255,.9);
+}
+.share-cta-title{
+  position:relative; font-family:'Jua',sans-serif; font-size:20px; color:var(--ink);
+  margin-top:16px; line-height:1.4; letter-spacing:-.2px;
+}
+.share-cta-sub{
+  position:relative; display:inline-block; margin-top:12px;
+  font-size:12.5px; font-weight:700; color:var(--primary-dark);
+  background:#fff; padding:7px 14px; border-radius:999px;
+  box-shadow:0 4px 12px rgba(120,90,110,.1);
+}
 
 .friends-pill{
   display:inline-flex; align-items:center;
@@ -323,25 +347,50 @@ body{
 
 /* 분석 섹션 카드 */
 .analysis-section{
-  background:#fff; border-radius:20px; padding:16px 16px 14px;
-  margin-bottom:10px; box-shadow:0 4px 14px rgba(120,90,110,.07);
+  background:#fff; border-radius:20px; padding:18px 18px 16px;
+  margin-bottom:12px; box-shadow:0 6px 18px rgba(120,90,110,.07);
+  border:1px solid rgba(120,90,110,.06);
 }
 .section-label{
-  font-size:13px; font-weight:800; color:var(--ink2); letter-spacing:.3px; margin-bottom:10px;
+  display:flex; align-items:center; gap:8px;
+  font-size:13.5px; font-weight:800; color:var(--ink); letter-spacing:.2px; margin-bottom:12px;
+}
+.section-label::before{
+  content:""; flex-shrink:0; width:4px; height:15px; border-radius:2px;
+  background:linear-gradient(180deg, var(--primary), var(--primary-dark));
 }
 .section-sub{font-size:12px; color:var(--ink3); margin:-6px 0 10px}
+
+/* 캐릭터 분석 — 유형 헤드(큰 이름) */
+.type-head{display:flex; flex-direction:column; gap:3px; margin-bottom:8px}
+.type-name{
+  font-family:'Jua',sans-serif; font-size:25px; color:var(--primary-dark); line-height:1.12;
+}
+.type-quote{
+  font-size:13.5px; color:var(--ink2); font-weight:600; font-style:italic;
+  margin:0 0 14px; padding-bottom:14px; border-bottom:1px solid var(--line);
+  word-break:keep-all;
+}
+/* 본문 문단 — 문단 사이 간격을 12px로 통일 (마지막 문단만 여백 제거) */
 .personality-desc{
-  font-size:15px; line-height:1.78; color:var(--ink); margin:0 0 8px; word-break:keep-all;
+  font-size:14.5px; line-height:1.78; color:var(--ink); margin:0 0 12px; word-break:keep-all;
 }
+.analysis-section > .personality-desc:last-child{margin-bottom:0}
+
+/* 💡 힌트 — 본문과 분리된 톤다운 콜아웃 박스 */
 .personality-hint{
-  font-size:13.5px; line-height:1.7; color:var(--ink2); margin:4px 0 0; word-break:keep-all;
+  display:flex; gap:9px; align-items:flex-start;
+  margin-top:14px; padding:12px 13px; border-radius:14px; background:var(--bg2);
 }
-/* 종합 분석 더보기: 펼치기 전엔 높이 0으로 접고, .open 시 펼친다 */
-.more-wrap{display:grid; grid-template-rows:0fr; transition:grid-template-rows .35s ease}
-.more-wrap .more-inner{min-height:0; overflow:hidden}
-.more-wrap.open{grid-template-rows:1fr}
+.personality-hint .hint-ic{font-size:15px; line-height:1.5; flex-shrink:0}
+.personality-hint .hint-tx{font-size:13px; line-height:1.65; color:var(--ink2); word-break:keep-all}
+.personality-hint .hint-tx b{color:var(--ink); font-weight:700}
+
+/* 종합 분석 접기/펼치기 — 높이 트랜지션 없이 즉시 표시(렉 방지), 펼칠 때 짧은 페이드만 */
+.comp-rest:not([hidden]){animation:fadeUp .2s ease both}
+@keyframes fadeUp{from{opacity:0; transform:translateY(-4px)} to{opacity:1; transform:none}}
 .more-btn{
-  display:inline-flex; align-items:center; gap:4px; margin-top:6px; padding:7px 14px;
+  display:inline-flex; align-items:center; gap:4px; margin-top:12px; padding:7px 14px;
   border:1.5px solid var(--line); border-radius:999px; background:#fff;
   font-size:13px; font-weight:700; color:var(--primary-dark); cursor:pointer;
 }

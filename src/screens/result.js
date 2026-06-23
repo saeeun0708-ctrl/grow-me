@@ -428,40 +428,41 @@ export async function renderResult(app) {
       <!-- 캐릭터 분석 (결과 카드 바로 아래) — 1위 캐릭터의 성격 특성·매력·비춰지는 모습 -->
       ${analysis ? `
       <div class="analysis-section" style="margin-top:20px">
-        <div class="section-label">🧬 캐릭터 분석</div>
-        <div class="section-sub">${nick}님은 <b style="color:var(--primary)">${form.name}</b> 유형이에요. "${form.tagline}"</div>
+        <div class="section-label">캐릭터 분석</div>
+        <div class="type-head">
+          <span class="type-name">${form.name}</span>
+        </div>
+        <div class="type-quote">"${form.tagline}"</div>
         ${analysis.desc.split("\n").map((p) => `<p class="personality-desc">${p}</p>`).join("")}
-        ${analysis.hidden ? `<p class="personality-hint">💡 이런 타입은 ${analysis.hidden}</p>` : ""}
+        ${analysis.hidden ? `<div class="personality-hint"><span class="hint-ic">💡</span><span class="hint-tx"><b>이런 타입은</b> ${analysis.hidden}</span></div>` : ""}
       </div>` : ""}
 
       <div class="analysis-section">
-        <div class="section-label">📊 나의 매력 성분표</div>
+        <div class="section-label">나의 매력 성분표</div>
         <div class="cat-bars">${unlocked ? catTop3Html + catRestHtml : catTop3Html}</div>
         ${!unlocked && catRestHtml ? lockWrap(`<div class="cat-bars">${catRestHtml}</div>`) : ""}
       </div>
 
       <div class="analysis-section">
-        <div class="section-label">💬 많이 고른 키워드</div>
+        <div class="section-label">많이 고른 키워드</div>
         <div class="kw-list">${kwHtml}</div>
       </div>
 
       <!-- 종합 분석 (여러 키워드를 종합한 심리검사 스타일 리딩) — 반전 매력 카드 바로 위 -->
       ${comprehensive ? `
       <div class="analysis-section">
-        <div class="section-label">🔍 ${nick}님 종합 분석</div>
+        <div class="section-label">${nick}님 종합 분석</div>
         <div class="section-sub">친구들이 골라준 단어 전체를 종합해 ${nick}님의 성격을 읽어봤어요.</div>
+        <p class="personality-desc">${comprehensive.paras[0]}</p>
         ${
-          unlocked
-            ? `<p class="personality-desc">${comprehensive.paras[0]}</p>
-               ${comprehensive.paras.length > 1 ? `
-                 <div class="more-wrap" id="comp-more">
-                   <div class="more-inner">
-                     ${comprehensive.paras.slice(1).map((p) => `<p class="personality-desc">${p}</p>`).join("")}
-                   </div>
+          comprehensive.paras.length > 1
+            ? unlocked
+              ? `<div class="comp-rest" id="comp-rest" hidden>
+                   ${comprehensive.paras.slice(1).map((p) => `<p class="personality-desc">${p}</p>`).join("")}
                  </div>
-                 <button class="more-btn" id="comp-more-btn" aria-expanded="false">더보기 <span class="more-arrow">▾</span></button>
-               ` : ""}`
-            : lockWrap(comprehensive.paras.map((p) => `<p class="personality-desc">${p}</p>`).join(""))
+                 <button class="more-btn" id="comp-more-btn" type="button" aria-expanded="false">더보기 <span class="more-arrow">▾</span></button>`
+              : lockWrap(comprehensive.paras.slice(1).map((p) => `<p class="personality-desc">${p}</p>`).join(""))
+            : ""
         }
       </div>` : ""}
 
@@ -510,7 +511,7 @@ export async function renderResult(app) {
 
     <!-- 하단 sticky: 공유 메인 CTA (저장은 결과 카드 탭으로 처리) -->
     <div class="save-dock">
-      <button class="btn" id="share-bottom">친구에게 공유하기 💌</button>
+      <button class="btn" id="share-bottom">친구에게 결과 공유하기 💌</button>
     </div>
   `;
 
@@ -526,18 +527,19 @@ export async function renderResult(app) {
         const b = app.querySelector("#share-bottom");
         if (b) {
           b.textContent = "링크 복사 완료! 💌";
-          setTimeout(() => (b.textContent = "친구에게 공유하기 💌"), 1800);
+          setTimeout(() => (b.textContent = "친구에게 결과 공유하기 💌"), 1800);
         }
       },
     });
   app.querySelector("#share-bottom").onclick = openResultShare;
 
-  // 종합 분석 더보기: 첫 문단만 보이고, 누르면 나머지 문단을 펼친다
+  // 종합 분석 접기/펼치기: 높이 애니메이션 없이 즉시 토글(렉 방지) + 펼칠 때 짧은 페이드만.
   const compMoreBtn = app.querySelector("#comp-more-btn");
   if (compMoreBtn) {
-    const moreWrap = app.querySelector("#comp-more");
+    const rest = app.querySelector("#comp-rest");
     compMoreBtn.onclick = () => {
-      const open = moreWrap.classList.toggle("open");
+      const open = rest.hidden; // 현재 숨김 → 펼침
+      rest.hidden = !open;
       compMoreBtn.setAttribute("aria-expanded", String(open));
       compMoreBtn.innerHTML = open
         ? `접기 <span class="more-arrow">▴</span>`
@@ -613,7 +615,7 @@ export async function renderSharedResult(app, slug) {
 
   const nick = owner.nickname || "친구";
   const m = computeModel(feedbacks, nick);
-  const { count, form, analysis, catTop3Html, kwHtml, secondCat, secondForm, secondAxis, compat } = m;
+  const { count, form, analysis, catTop3Html, kwHtml, comprehensive, secondCat, secondForm, secondAxis, compat } = m;
 
   if (count === 0) {
     app.innerHTML = `
@@ -641,25 +643,34 @@ export async function renderSharedResult(app, slug) {
       <!-- 캐릭터 분석 -->
       ${analysis ? `
       <div class="analysis-section" style="margin-top:20px">
-        <div class="section-label">🧬 캐릭터 분석</div>
-        <div class="section-sub">${nick}님은 <b style="color:var(--primary)">${form.name}</b> 유형이에요. "${form.tagline}"</div>
+        <div class="section-label">캐릭터 분석</div>
+        <div class="type-head">
+          <span class="type-name">${form.name}</span>
+        </div>
+        <div class="type-quote">"${form.tagline}"</div>
         ${analysis.desc.split("\n").map((p) => `<p class="personality-desc">${p}</p>`).join("")}
-        ${analysis.hidden ? `<p class="personality-hint">💡 이런 타입은 ${analysis.hidden}</p>` : ""}
+        ${analysis.hidden ? `<div class="personality-hint"><span class="hint-ic">💡</span><span class="hint-tx"><b>이런 타입은</b> ${analysis.hidden}</span></div>` : ""}
       </div>` : ""}
 
       <!-- 매력 성분표 (공개분: TOP3만) -->
       <div class="analysis-section">
-        <div class="section-label">📊 ${nick}님의 매력 성분표</div>
+        <div class="section-label">${nick}님의 매력 성분표</div>
         <div class="cat-bars">${catTop3Html}</div>
       </div>
 
       <!-- 많이 고른 키워드 -->
       <div class="analysis-section">
-        <div class="section-label">💬 친구들이 많이 고른 키워드</div>
+        <div class="section-label">친구들이 많이 고른 키워드</div>
         <div class="kw-list">${kwHtml}</div>
       </div>
 
-      <!-- 종합 분석은 유료 영역이라 공개 뷰에서 제외 -->
+      <!-- 종합 분석 (공개분: 첫 문단까지만 — 나머지는 유료) -->
+      ${comprehensive ? `
+      <div class="analysis-section">
+        <div class="section-label">${nick}님 종합 분석</div>
+        <div class="section-sub">친구들이 골라준 단어 전체를 종합해 ${nick}님의 성격을 읽어봤어요.</div>
+        <p class="personality-desc">${comprehensive.paras[0]}</p>
+      </div>` : ""}
 
       <!-- 반전 매력 (2위 캐릭터 기반) — 공개 -->
       ${secondForm && secondAxis ? rSection({
@@ -686,12 +697,12 @@ export async function renderSharedResult(app, slug) {
           </div>`,
       }) : ""}
 
-      <!-- 바이럴 유도 카드 -->
-      <div class="share-cta-card">
-        <div class="share-cta-emoji">🌱</div>
-        <div class="share-cta-title">나도 친구들이 보는 내 모습이 궁금하다면?</div>
-        <p class="share-cta-sub">30초면 내 캐릭터를 키울 수 있어요</p>
-      </div>
+      <!-- 바이럴 유도 카드 (카드 전체가 '내 캐릭터 키우기' 진입점) -->
+      <button class="share-cta-card" id="cta-make" type="button">
+        <div class="share-cta-badge"><span>🌱</span></div>
+        <div class="share-cta-title">친구들이 보는 내 모습이<br>궁금하다면?</div>
+        <p class="share-cta-sub">30초면 내 캐릭터를 만들 수 있어요</p>
+      </button>
     </div>
 
     <!-- 하단 sticky: 나도 만들기를 메인 CTA로 (바이럴 루프) -->
@@ -700,7 +711,10 @@ export async function renderSharedResult(app, slug) {
     </div>
   `;
 
-  app.querySelector("#make").onclick = () => navigate("/");
+  const goMake = () => navigate("/");
+  app.querySelector("#make").onclick = goMake;
+  const ctaMake = app.querySelector("#cta-make");
+  if (ctaMake) ctaMake.onclick = goMake;
 }
 
 // 공개 결과 뷰 로딩 표시 (간단)
