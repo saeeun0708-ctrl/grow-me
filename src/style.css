@@ -340,16 +340,49 @@ body{
 }
 .kw-chip.kw-top .kw-cnt{background:rgba(255,255,255,.25)}
 
-/* 의외의 매력 카드 */
-.hidden-trait-card{
-  background:linear-gradient(135deg, #F5F0FF, #FFF5FB);
-  border:1.5px solid #E0D4FF; border-radius:18px;
-  padding:14px 16px; margin-bottom:10px;
+/* 결과 추가 섹션 (반전 매력 / 궁합) 공통 카드 */
+.rsec{
+  background:#fff; border-radius:20px; padding:15px 16px 17px; margin-top:12px;
+  box-shadow:0 4px 16px rgba(120,90,110,.07); border:1px solid rgba(0,0,0,.015);
 }
-.hidden-trait-label{
-  font-size:12px; font-weight:800; color:#9A85E8; letter-spacing:.3px; margin-bottom:6px;
+.rsec.accent{
+  background:linear-gradient(165deg, var(--card-top), var(--card-bot));
+  box-shadow:0 8px 22px rgba(120,90,110,.12); border:1px solid rgba(255,255,255,.6);
 }
-.hidden-trait-main{font-size:14.5px; line-height:1.65; color:var(--ink); word-break:keep-all}
+.rsec-head{display:flex; align-items:center; gap:10px; margin-bottom:13px}
+.rsec-sym{
+  flex-shrink:0; width:32px; height:32px; border-radius:10px; background:var(--bg2);
+  display:flex; align-items:center; justify-content:center;
+}
+.rsec.accent .rsec-sym{background:rgba(255,255,255,.72)}
+.rsec-head h3{
+  margin:0; font-family:'Jua',sans-serif; font-size:16px; color:var(--ink);
+  font-weight:400; white-space:nowrap; line-height:1.1;
+}
+.rsec-no{margin-left:auto; font-family:'Jua',sans-serif; font-size:16px; color:var(--ink3); opacity:.4; letter-spacing:.5px}
+
+/* 반전 매력 */
+.flip-row{display:flex; align-items:center; gap:14px}
+.flip-char{
+  flex-shrink:0; width:78px; height:78px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+}
+.flip-title{font-family:'Jua',sans-serif; font-size:18px; color:var(--ink)}
+.flip-desc{margin:3px 0 0; font-size:13px; line-height:1.6; color:var(--ink2); font-weight:600; word-break:keep-all}
+
+/* 궁합 미니 카드 */
+.match-row{display:flex; gap:11px}
+.match-card{
+  flex:1; background:rgba(255,255,255,.78); border-radius:16px; padding:12px 11px 13px;
+  text-align:center; border:1.5px solid transparent; box-shadow:0 3px 10px rgba(120,90,110,.06);
+}
+.match-card.best{border-color:var(--primary)}
+.match-kind{font-size:10.5px; font-weight:800; letter-spacing:.4px; color:var(--ink3)}
+.match-card.best .match-kind{color:var(--primary-dark)}
+.match-char{position:relative; display:flex; justify-content:center; margin:4px 0 1px}
+.match-glow{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:60px; height:60px; border-radius:50%}
+.match-name{font-family:'Jua',sans-serif; font-size:15px; color:var(--ink)}
+.match-why{margin:4px 0 0; font-size:11.5px; line-height:1.5; color:var(--ink2); font-weight:600; word-break:keep-all}
 
 /* 공유 구분선 */
 .share-divider{display:flex; align-items:center; gap:12px; margin:20px 0 14px}

@@ -63,6 +63,106 @@ const CAT_EMOJI = {
   talent: "🌟", mystery: "🔮",
 };
 
+// 반전 매력 섹션에서 쓰는 캐릭터별 "매력 축"(명사)
+const AXIS = {
+  brain: "지성", charm: "비주얼", passion: "열정", cute: "사랑스러움",
+  fun: "유쾌함", warm: "다정함", talent: "재능", mystery: "신비로움",
+};
+
+// 성격 종합 분석용 캐릭터별 조각 (여러 카테고리를 엮어 한 사람의 성격으로 합성)
+// adj=성격을 설명하는 수식어구 / charm=매력 포인트(명사구) / seen=친구들 눈에 비치는 모습(명사구)
+const TRAITS = {
+  brain:   { adj: "논리적이고 깊이 있게 사고하는",       charm: "핵심을 꿰뚫는 통찰력과 똑부러지는 판단력",       seen: "무엇이든 믿고 물어보고 싶은 똑똑한 사람" },
+  charm:   { adj: "자기만의 분위기와 스타일이 뚜렷한",   charm: "시선을 사로잡는 존재감과 자기관리에서 나오는 자신감", seen: "곁에 있으면 괜히 신경 쓰이는 매력적인 사람" },
+  passion: { adj: "목표를 향해 거침없이 나아가는",       charm: "한번 마음먹으면 끝까지 해내는 추진력과 에너지",   seen: "함께 있으면 나도 무언가 해내고 싶어지는 사람" },
+  cute:    { adj: "순수하고 발랄한 에너지를 가진",       charm: "보고만 있어도 미소 짓게 만드는 사랑스러움",       seen: "자꾸만 챙겨주고 곁에 두고 싶은 사람" },
+  fun:     { adj: "어떤 자리든 즐겁게 만드는",           charm: "분위기를 살리는 유쾌함과 센스 있는 입담",         seen: "함께 있으면 시간 가는 줄 모르는 사람" },
+  warm:    { adj: "따뜻하고 배려심이 깊은",             charm: "말없이 곁을 지켜주는 다정함과 든든한 공감 능력",   seen: "마음이 힘들 때 가장 먼저 떠오르는 사람" },
+  talent:  { adj: "무엇이든 곧잘 해내는",               charm: "다재다능함과 손에 잡히는 건 다 해내는 재주",     seen: "뭐든 부탁하고 싶은 든든한 만능 재주꾼" },
+  mystery: { adj: "쉽게 읽히지 않는 개성을 가진",       charm: "알수록 더 궁금해지는 묘한 분위기와 독특한 시선",   seen: "더 알고 싶어지는 신비로운 사람" },
+};
+
+// 종합 성격 분석 합성: 상위 카테고리들과 키워드를 엮어 심리검사 결과처럼 문단을 만든다.
+// 1·2(·3)위 카테고리를 조합해 "어떤 성격인지 / 친구들에게 어떻게 비치는지 / 어떤 매력이 있는지"를 서술.
+function buildComprehensive({ catRanking, nick }) {
+  const ranked = catRanking.filter((c) => c.count > 0 && TRAITS[c.code]);
+  if (ranked.length === 0) return null;
+  const c1 = ranked[0], c2 = ranked[1], c3 = ranked[2];
+  const t1 = TRAITS[c1.code], t2 = c2 ? TRAITS[c2.code] : null, t3 = c3 ? TRAITS[c3.code] : null;
+
+  // ① 종합 성격
+  let p1 = `${nick}님을 떠올리며 친구들이 골라준 단어를 모아보니, <b>${t1.adj}</b> 모습이 가장 진하게 드러났어요.`;
+  if (t2) {
+    p1 += ` 여기에 <b>${t2.adj}</b> 면이 더해지고`;
+    p1 += t3
+      ? `, ${t3.adj} 결까지 은근히 비치면서 한 가지로 단정할 수 없는 입체적인 사람으로 그려져요.`
+      : ` 한 가지로만 설명하기 어려운 입체적인 사람으로 그려져요.`;
+  } else {
+    p1 += ` 그 한 가지 색이 누구보다 선명하게 드러나는 사람이에요.`;
+  }
+
+  // ② 친구들에게 어떻게 비치는지
+  let p2 = `친구들 눈에 ${nick}님은 <b>${t1.seen}</b>이에요.`;
+  if (t2) p2 += ` 동시에 ${t2.seen}이기도 하죠. 상황에 따라 다른 매력이 자연스럽게 나오는 게 ${nick}님의 강점이에요.`;
+
+  // ③ 매력 포인트
+  let p3 = `${nick}님만의 가장 큰 매력은 <b>${t1.charm}</b>이에요.`;
+  if (t2) p3 += ` 그리고 ${t2.charm}까지 — 친구들은 바로 이런 면에 끌렸다고 말하고 있어요.`;
+
+  return { paras: [p1, p2, p3] };
+}
+
+// 캐릭터별 궁합 — match: 환상의 짝꿍 / clash: 티키타카(티격태격 케미)
+// ※ 문구는 임시 카피, 검수 후 다듬을 것
+const COMPAT = {
+  brain:   { match: "warm",    clash: "fun",     matchWhy: "차분히 받쳐주는 포근함이 딱이에요.",   clashWhy: "진지함과 장난기가 의외로 잘 굴러가요." },
+  charm:   { match: "talent",  clash: "mystery", matchWhy: "둘이 모이면 시선을 독차지해요.",        clashWhy: "감출수록 더 끌리는 묘한 케미예요." },
+  passion: { match: "cute",    clash: "warm",    matchWhy: "추진력에 사랑스러움이 더해져요.",       clashWhy: "속도는 달라도 서로를 채워줘요." },
+  cute:    { match: "passion", clash: "mystery", matchWhy: "든든하게 지켜주는 짝꿍이에요.",         clashWhy: "정반대라 더 궁금해지는 사이예요." },
+  fun:     { match: "warm",    clash: "brain",   matchWhy: "텐션을 편하게 받아줘요.",              clashWhy: "유쾌함과 똑부러짐이 티격태격 재밌어요." },
+  warm:    { match: "brain",   clash: "passion", matchWhy: "다정함을 깊이 알아봐 줘요.",           clashWhy: "잔잔함과 불꽃이 묘하게 통해요." },
+  talent:  { match: "charm",   clash: "mystery", matchWhy: "재능과 매력이 만나 빛이 나요.",         clashWhy: "예측불가라 같이 있으면 안 질려요." },
+  mystery: { match: "cute",    clash: "fun",     matchWhy: "신비로움을 사랑스럽게 녹여줘요.",       clashWhy: "정반대 텐션이 의외로 찰떡이에요." },
+};
+
+// 라인 아이콘 (spark=반짝 / heart=하트). stroke 색은 CSS 변수 문자열 허용 위해 style로 지정.
+function symIcon(name, color, size = 19) {
+  const paths = {
+    spark: `<path d="M10 3.6 C10.5 8.4 11.6 9.5 16.4 10 C11.6 10.5 10.5 11.6 10 16.4 C9.5 11.6 8.4 10.5 3.6 10 C8.4 9.5 9.5 8.4 10 3.6 Z"/><path d="M18 4 C18.2 5.7 18.3 5.8 20 6 C18.3 6.2 18.2 6.3 18 8 C17.8 6.3 17.7 6.2 16 6 C17.7 5.8 17.8 5.7 18 4 Z"/>`,
+    heart: `<path d="M12 19.5 C12 19.5 4 14.2 4 8.8 C4 6.1 6.1 4.4 8.5 4.4 C10.1 4.4 11.4 5.4 12 6.6 C12.6 5.4 13.9 4.4 15.5 4.4 C17.9 4.4 20 6.1 20 8.8 C20 14.2 12 19.5 12 19.5 Z"/>`,
+  };
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" style="display:block;fill:none;stroke:${color};stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round">${paths[name] || ""}</svg>`;
+}
+
+// 섹션 카드 공통 래퍼 (sym=아이콘, accent=그라데이션 강조) — 우측 상단 번호 뱃지는 제거됨
+function rSection({ sym, title, accent, body }) {
+  return `
+    <div class="rsec${accent ? " accent" : ""}">
+      <div class="rsec-head">
+        <span class="rsec-sym">${symIcon(sym, "var(--primary-dark)")}</span>
+        <h3>${title}</h3>
+      </div>
+      ${body}
+    </div>`;
+}
+
+// 궁합 미니 카드 (best=환상의 짝꿍 / spark=티키타카)
+function matchCard(kind, charCode, reason) {
+  const c = CHARACTERS[charCode];
+  if (!c) return "";
+  const isBest = kind === "best";
+  return `
+    <div class="match-card${isBest ? " best" : ""}">
+      <div class="match-kind">${isBest ? "💚 환상의 짝꿍" : "⚡ 티키타카"}</div>
+      <div class="match-char">
+        <div class="match-glow" style="background:radial-gradient(circle,${c.color}40,transparent 68%)"></div>
+        <div style="position:relative">${renderCharacter(charCode, 3, 62, false)}</div>
+      </div>
+      <div class="match-name">${c.name}</div>
+      <p class="match-why">${reason}</p>
+    </div>`;
+}
+
 function tally(words) {
   const map = {};
   words.forEach((w) => (map[w] = (map[w] || 0) + 1));
@@ -106,6 +206,8 @@ export async function renderResult(app) {
   const glowColor = form ? form.color : "#FF7FA3";
   const secondCat = catRanking.length >= 2 ? catRanking[1] : null;
   const secondForm = secondCat ? CHARACTERS[secondCat.code] : null;
+  const secondAxis = secondCat ? AXIS[secondCat.code] : null;
+  const compat = code ? COMPAT[code] : null;
   const nick = me.nickname || "나";
 
   if (count === 0) {
@@ -158,6 +260,9 @@ export async function renderResult(app) {
 
   const top3kw = wordRanking.slice(0, 3).map((w) => w.word);
 
+  // 성격 종합 분석 (상위 카테고리 + 키워드 합성) — 카드 아래에 표시
+  const comprehensive = buildComprehensive({ catRanking, nick });
+
   // 저장 카드용 미니 성분표 (상위 3개 카테고리) — 본문 성분표와 같은 동점 보정 적용
   // 이모지 대신 1·2·3위 순위 뱃지로 표시
   const icBarsHtml = catRanking
@@ -195,7 +300,7 @@ export async function renderResult(app) {
           <div class="ic-dots-bg"></div>
           <div class="ic-inner">
             <!-- 타이틀: 서브('N명의 친구가 본') + 메인('{닉네임}님의 매력은?') -->
-            <div class="ic-subtitle">${count}명의 친구들이 뽑아준</div>
+            <div class="ic-subtitle">${count}명의 친구들이 키워준</div>
             <div class="ic-maintitle">${nick}님의 매력은?</div>
 
             <div style="position:relative;display:flex;justify-content:center;margin:4px 0 4px">
@@ -225,12 +330,13 @@ export async function renderResult(app) {
         </div>
       </div>
 
-      <!-- 성격 분석 -->
+      <!-- 캐릭터 분석 (결과 카드 바로 아래) — 1위 캐릭터의 성격 특성·매력·비춰지는 모습 -->
       ${analysis ? `
       <div class="analysis-section" style="margin-top:20px">
-        <div class="section-label">🪞 성격 분석</div>
-        ${analysis.desc.split("\n").map(p => `<p class="personality-desc">${p}</p>`).join("")}
-        <p class="personality-hint">이런 타입은 ${analysis.hidden}</p>
+        <div class="section-label">🧬 캐릭터 분석</div>
+        <div class="section-sub">${nick}님은 <b style="color:var(--primary)">${form.name}</b> 유형이에요. "${form.tagline}"</div>
+        ${analysis.desc.split("\n").map((p) => `<p class="personality-desc">${p}</p>`).join("")}
+        ${analysis.hidden ? `<p class="personality-hint">💡 이런 타입은 ${analysis.hidden}</p>` : ""}
       </div>` : ""}
 
       <div class="analysis-section">
@@ -243,14 +349,38 @@ export async function renderResult(app) {
         <div class="kw-list">${kwHtml}</div>
       </div>
 
-      <!-- ⑤ 의외의 매력 문장 자연스럽게 -->
-      ${secondForm ? `
-      <div class="hidden-trait-card">
-        <div class="hidden-trait-label">✨ 또 하나의 매력</div>
-        <div class="hidden-trait-main">
-          ${secondForm.name} 매력도 함께 가지고 있어. "${secondForm.tagline}"
-        </div>
+      <!-- 종합 분석 (여러 키워드를 종합한 심리검사 스타일 리딩) — 반전 매력 카드 바로 위 -->
+      ${comprehensive ? `
+      <div class="analysis-section">
+        <div class="section-label">🔍 ${nick}님 종합 분석</div>
+        <div class="section-sub">친구들이 골라준 단어 전체를 종합해 ${nick}님의 성격을 읽어봤어요.</div>
+        ${comprehensive.paras.map((p) => `<p class="personality-desc">${p}</p>`).join("")}
       </div>` : ""}
+
+      <!-- ④ 반전 매력 (2위 캐릭터 기반) -->
+      ${secondForm && secondAxis ? rSection({
+        sym: "spark", title: "사실 이런 면도 숨어 있어요", accent: true,
+        body: `
+          <div class="flip-row">
+            <div class="flip-char" style="background:radial-gradient(circle,${secondForm.color}40,transparent 68%)">
+              ${renderCharacter(secondCat.code, 3, 78, false)}
+            </div>
+            <div style="flex:1">
+              <div class="flip-title">숨은 매력, <span style="color:var(--primary)">${secondForm.name}</span></div>
+              <p class="flip-desc">겉으론 ${form.name}이지만, 친구들은 ${nick}님에게서 <b style="color:var(--ink)">${secondAxis}</b>의 반전 매력도 느꼈대요. ${secondForm.tagline} 같은 면이 살짝 숨어 있어요.</p>
+            </div>
+          </div>`,
+      }) : ""}
+
+      <!-- ⑤ 궁합 -->
+      ${compat ? rSection({
+        sym: "heart", title: "나와 잘 맞는 유형은?", accent: true,
+        body: `
+          <div class="match-row">
+            ${matchCard("best", compat.match, compat.matchWhy)}
+            ${matchCard("spark", compat.clash, compat.clashWhy)}
+          </div>`,
+      }) : ""}
 
       <!-- ⑧ 잠금 섹션 — 중복 제거 -->
       <div class="lock-area" style="margin-top:10px">

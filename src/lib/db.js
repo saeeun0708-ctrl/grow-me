@@ -66,7 +66,7 @@ const local = {
   },
   async submitFeedback(_ownerId, name, words) {
     const s = lload();
-    if (s.me?.is_independent) throw new Error("independent");
+    // 독립한 캐릭터도 먹이는 계속 받을 수 있다(차단하지 않음)
     s.feedbacks.push({ sender_name: name, selected_words: words });
     lsave(s);
   },

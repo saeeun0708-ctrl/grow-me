@@ -64,8 +64,7 @@ export async function renderFeed(app, slug) {
 
   // 친구는 주인의 테마로 본다
   applyTheme(owner.theme);
-  if (owner.is_independent)
-    return infoScreen(app, "", "mystery", 3, "성장이 끝난 캐릭터예요 🎓", "더 이상 먹이를 줄 수 없어요", "나도 만들기", () => navigate("/"));
+  // 독립한 캐릭터도 먹이는 계속 받을 수 있다(차단하지 않음)
   if (alreadyFed(slug))
     return infoScreen(app, "🍽️", "warm", 2, "이미 먹이를 줬어요", "한 캐릭터에는 한 번만 줄 수 있어요", "나도 만들기", () => navigate("/"));
 
@@ -95,7 +94,7 @@ function renderPick(app, owner, slug, ownerName) {
   const selected = new Set();
 
   app.innerHTML = `
-    <div style="position:fixed;top:0;left:50%;transform:translateX(-50%);width:min(430px,100%);background:var(--bg);z-index:10;padding:16px 16px 10px">
+    <div id="pickHead" style="position:fixed;top:0;left:50%;transform:translateX(-50%);width:min(430px,100%);background:var(--bg);z-index:10;padding:16px 16px 10px">
       <div class="center" style="margin-bottom:10px">
         <h2 class="jua" style="font-size:21px;margin:0;color:var(--ink)">${ownerName}님에게 어울리는 말 7개</h2>
         <p class="muted" style="font-size:13.5px;color:var(--ink3);margin:4px 0 0">마음에 드는 단어를 톡톡 눌러줘</p>
@@ -105,7 +104,7 @@ function renderPick(app, owner, slug, ownerName) {
       </div>
       <div class="dots" id="dots">${Array.from({ length: PICK_COUNT }).map(() => `<i></i>`).join("")}</div>
     </div>
-    <div style="padding:170px 16px 100px">
+    <div id="pickBody" style="padding:170px 16px 100px">
       <div class="chips" id="chips">
         ${allChips.slice(0, INIT).map((w) => `<button class="chip" data-w="${w}">${w}</button>`).join("")}
       </div>
@@ -118,6 +117,14 @@ function renderPick(app, owner, slug, ownerName) {
   const dotsEl = app.querySelector("#dots");
   const submitEl = app.querySelector("#submit");
   const nameEl = app.querySelector("#name");
+  const headEl = app.querySelector("#pickHead");
+  const bodyEl = app.querySelector("#pickBody");
+  // 고정 헤더 높이를 측정해 칩 영역 상단 여백을 맞춘다(헤더에 칩이 가려지지 않도록)
+  function syncHeadPad() {
+    bodyEl.style.paddingTop = headEl.offsetHeight + 12 + "px";
+  }
+  syncHeadPad();
+  window.addEventListener("resize", syncHeadPad, { passive: true });
   // window 스크롤로 감지 (iOS Safari 호환)
   function loadMore() {
     if (loaded >= allChips.length) return;
@@ -142,6 +149,7 @@ function renderPick(app, owner, slug, ownerName) {
   const cleanup = new MutationObserver(() => {
     if (!document.contains(chipsEl)) {
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", syncHeadPad);
       cleanup.disconnect();
     }
   });

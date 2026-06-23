@@ -31,6 +31,16 @@ function showLoading() {
   app.innerHTML = renderLoading();
 }
 
+// supabase 호출이 응답 없이 멈추는 경우(백엔드 장애·프로젝트 일시정지 등) 대비.
+// ms 안에 끝나지 않거나 reject되면 fallback 값으로 폴백해 무한 로딩을 막는다.
+function withTimeout(promise, ms, fallback) {
+  return Promise.race([
+    Promise.resolve(promise).catch(() => fallback),
+    new Promise((resolve) => setTimeout(() => resolve(fallback), ms)),
+  ]);
+}
+const AUTH_TIMEOUT = 5000;
+
 async function router() {
   const raw = location.hash.slice(1) || "/";
   const parts = raw.split("/").filter(Boolean);
@@ -41,11 +51,13 @@ async function router() {
   // 로그인 필요 화면 가드 (+ 온보딩 미완료 시 온보딩으로)
   const needsAuth = route === "owner" || route === "result" || route === "onboarding";
   if (needsAuth) {
-    const session = await db.getSession();
+    // 백엔드가 멈춰도 무한 로딩되지 않도록 타임아웃 폴백 → 실패 시 landing
+    const session = await withTimeout(db.getSession(), AUTH_TIMEOUT, null);
     if (!session) return renderLanding(app);
-    const me = await db.ensureMyUser();
-    if (me && !me.theme && route !== "onboarding") return renderOnboarding(app);
-    if (me && me.theme) applyTheme(me.theme);
+    const me = await withTimeout(db.ensureMyUser(), AUTH_TIMEOUT, null);
+    if (!me) return renderLanding(app);
+    if (!me.theme && route !== "onboarding") return renderOnboarding(app);
+    if (me.theme) applyTheme(me.theme);
   }
 
   switch (route) {
@@ -72,10 +84,11 @@ window.addEventListener("hashchange", router);
   showLoading();
   if (MODE === "supabase") {
     // detectSessionInUrl이 ?code= 를 교환할 시간을 주고 세션 확인
-    await db.getSession();
+    // (백엔드 장애 시 멈추지 않도록 타임아웃 폴백)
+    const session = await withTimeout(db.getSession(), AUTH_TIMEOUT, null);
     // OAuth 후 깨끗한 URL에서 첫 진입이면 내 캐릭터로
     const onRoot = !location.hash || location.hash === "#/";
-    if (onRoot && (await db.getSession())) {
+    if (onRoot && session) {
       navigate("/owner");
       return; // hashchange가 router 호출
     }

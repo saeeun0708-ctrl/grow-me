@@ -60,14 +60,13 @@ language sql security definer set search_path = public as $$
 $$;
 grant execute on function public.get_owner_by_slug(text) to anon, authenticated;
 
--- 먹이주기 (비로그인 지인도 호출) · 독립 캐릭터/형식오류는 거부
+-- 먹이주기 (비로그인 지인도 호출) · 형식오류는 거부 (독립한 캐릭터도 먹이는 계속 받음)
 create or replace function public.submit_feedback(p_owner uuid, p_name text, p_words text[])
 returns void language plpgsql security definer set search_path = public as $$
-declare v_indep boolean;
+declare v_exists boolean;
 begin
-  select is_independent into v_indep from public.users where id = p_owner;
-  if v_indep is null then raise exception 'owner not found'; end if;
-  if v_indep then raise exception 'character already independent'; end if;
+  select true into v_exists from public.users where id = p_owner;
+  if v_exists is null then raise exception 'owner not found'; end if;
   if array_length(p_words, 1) is distinct from 7 then raise exception 'need exactly 7 words'; end if;
   insert into public.feedbacks(owner_user_id, sender_name, selected_words)
   values (p_owner, coalesce(nullif(trim(p_name), ''), '익명'), p_words);

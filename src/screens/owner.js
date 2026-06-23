@@ -50,9 +50,19 @@ function openShareSheet(url) {
   };
 }
 import { navigate } from "../main.js";
-import { db } from "../lib/db.js";
+import { db, MODE } from "../lib/db.js";
 import { decideStage, decideCharacter, CHARACTERS } from "../data/words.js";
 import { renderCharacter } from "../components/character.js";
+
+// 개발용: 로컬 모드에서 더미 친구 3명을 채워 결과 화면을 바로 확인 (운영 Supabase 모드에선 숨김)
+const DEMO_FEEDBACKS = [
+  { name: "지민", words: ["예뻐", "멋있어", "스타일좋아", "매력적이야", "옷잘입어", "귀여워", "웃겨"] },
+  { name: "수아", words: ["매력적이야", "세련됐어", "분위기있어", "다정해", "예뻐", "스타일좋아", "재미있어"] },
+  { name: "현우", words: ["멋있어", "잘생겼어", "예뻐", "똑똑해", "열정적이야", "친절해", "매력적이야"] },
+];
+async function seedDemoFeedbacks(me) {
+  for (const f of DEMO_FEEDBACKS) await db.submitFeedback(me.id, f.name, f.words);
+}
 
 export async function renderOwner(app) {
   const me = await db.ensureMyUser();
@@ -121,7 +131,7 @@ export async function renderOwner(app) {
 
       ${
         independent
-          ? `<div class="card center" style="margin-bottom:14px"><b>독립한 캐릭터예요 🎓</b><div class="muted mt-s">더 이상 먹이를 받지 않아요</div></div>`
+          ? `<div class="card center" style="margin-bottom:14px"><b>독립한 캐릭터예요 🎓</b><div class="muted mt-s">결과는 확정됐지만, 먹이는 계속 받을 수 있어요</div></div>`
           : `<div class="card prog">
               <div class="prog-head"><span class="l">${progLabel}</span>${stage >= 3 ? "" : `<span class="r">${nextLabel}</span>`}</div>
               ${stage >= 3 ? `<div class="prog-next">${nextLabel}</div>` : ""}
@@ -131,13 +141,24 @@ export async function renderOwner(app) {
 
       <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
         ${independent
-          ? `<button class="btn" id="result">결과 카드 보기</button>`
+          ? `<button class="btn" id="result">결과 카드 보기</button>
+             <button class="btn ghost" id="share">친구에게 먹이 더 받기</button>`
           : `<button class="btn" id="share">친구에게 먹이 요청하기</button>
              ${stage >= 3 ? `<button class="btn ghost" id="independ">독립 시키기 (결과 보기)</button>` : ""}`}
         <button class="btn text" id="logout">로그아웃</button>
+        ${MODE === "local" ? `<button class="btn text" id="demo" style="color:var(--ink3)">🧪 (개발) 더미 친구 3명 채우고 결과 보기</button>` : ""}
       </div>
     </div>
   `;
+
+  const demoBtn = app.querySelector("#demo");
+  if (demoBtn)
+    demoBtn.onclick = async () => {
+      demoBtn.disabled = true;
+      demoBtn.textContent = "채우는 중…";
+      await seedDemoFeedbacks(me);
+      navigate("/result");
+    };
 
   const resultBtn = app.querySelector("#result");
   if (resultBtn) resultBtn.onclick = () => navigate("/result");
@@ -153,7 +174,7 @@ export async function renderOwner(app) {
   const independ = app.querySelector("#independ");
   if (independ)
     independ.onclick = async () => {
-      if (confirm("독립시키면 더 이상 먹이를 받을 수 없어요. 계속할까요?")) {
+      if (confirm("독립시키면 결과 카드가 공개돼요. 먹이는 계속 받을 수 있어요. 계속할까요?")) {
         await db.setIndependent(true);
         renderOwner(app);
       }
