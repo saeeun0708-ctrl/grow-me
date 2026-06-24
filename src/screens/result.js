@@ -9,6 +9,11 @@ import { toPng } from "html-to-image";
 // 진입점(시청자가 "나도 해볼래"로 들어올 주소) — 호스팅 도메인
 const ENTRY_URL = "grow-me-omega.vercel.app";
 
+// 공유 링크는 항상 운영 도메인 기준으로 고정한다.
+// (GitHub Pages·로컬 등 어느 origin에서 결과를 열어도 복사 링크와 카카오 공유 링크가
+//  동일한 운영 주소를 가리키도록 — location.origin을 쓰면 보던 도메인에 따라 달라진다.)
+const SHARE_BASE = `https://${ENTRY_URL}/`;
+
 // 결과 카드(#insta-card)를 화면에 보이는 색·CSS 그대로 PNG로 저장한다.
 // html-to-image는 SVG foreignObject로 실제 브라우저 렌더 엔진의 결과를 그대로 캡처해
 // 그라데이션·반투명 레이어의 색이 화면과 어긋나지 않는다(html2canvas는 자체 렌더러라 색이 진해짐).
@@ -413,7 +418,7 @@ export async function renderResult(app) {
   }
 
   // 공유 링크: 친구가 결제 영역 없는 공개 결과 뷰로 들어온다
-  const shareUrl = `${location.origin}${location.pathname}#/share/${me.share_slug}`;
+  const shareUrl = `${SHARE_BASE}#/share/${me.share_slug}`;
 
   app.innerHTML = `
     <div class="screen result-screen">
