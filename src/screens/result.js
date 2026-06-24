@@ -607,11 +607,26 @@ export async function renderSharedResult(app, slug) {
   // 친구는 주인의 테마로 본다
   applyTheme(owner.theme);
 
+  // 먹이 조회: "진짜 오류(네트워크·RPC 누락 등)"와 "먹이가 아직 없음"을 구분한다.
+  // 에러를 조용히 []로 삼키면, 오류 상황이 "아직 자라는 중"으로 위장돼 디버깅이 어렵다.
   let feedbacks = [];
   try {
     feedbacks = await db.getFeedbacksBySlug(slug);
-  } catch {
-    feedbacks = [];
+  } catch (e) {
+    console.error("[share] 먹이 조회 실패", e);
+    app.innerHTML = `
+      <div class="screen">
+        <div class="center-screen">
+          ${renderCharacter("cute", 0, 150)}
+          <h2>결과를 불러오지 못했어요</h2>
+          <p class="muted">잠깐 문제가 생겼어요.<br/>잠시 후 다시 시도해주세요.</p>
+        </div>
+        <button class="btn" id="retry">다시 시도하기</button>
+        <button class="btn ghost" id="make">나도 내 캐릭터 키우기 🌱</button>
+      </div>`;
+    app.querySelector("#retry").onclick = () => renderSharedResult(app, slug);
+    app.querySelector("#make").onclick = () => navigate("/");
+    return;
   }
 
   const nick = owner.nickname || "친구";
