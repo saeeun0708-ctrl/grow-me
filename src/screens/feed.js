@@ -88,9 +88,6 @@ export async function renderFeed(app, slug) {
 function renderPick(app, owner, slug, ownerName) {
   const shuffle = (arr) => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const allChips = shuffle(ALL_WORDS);
-  const INIT = 30;
-  const BATCH = 20;
-  let loaded = INIT;
   const selected = new Set();
 
   app.innerHTML = `
@@ -106,7 +103,7 @@ function renderPick(app, owner, slug, ownerName) {
     </div>
     <div id="pickBody" style="padding:170px 16px 100px">
       <div class="chips" id="chips">
-        ${allChips.slice(0, INIT).map((w) => `<button class="chip" data-w="${w}">${w}</button>`).join("")}
+        ${allChips.map((w) => `<button class="chip" data-w="${w}">${w}</button>`).join("")}
       </div>
     </div>
     <div style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(430px,100%);padding:0 16px 20px;background:linear-gradient(transparent,var(--bg) 40%);z-index:20">
@@ -125,30 +122,9 @@ function renderPick(app, owner, slug, ownerName) {
   }
   syncHeadPad();
   window.addEventListener("resize", syncHeadPad, { passive: true });
-  // window 스크롤로 감지 (iOS Safari 호환)
-  function loadMore() {
-    if (loaded >= allChips.length) return;
-    const next = allChips.slice(loaded, loaded + BATCH);
-    const full = selected.size >= PICK_COUNT;
-    next.forEach((w) => {
-      const btn = document.createElement("button");
-      btn.className = "chip" + (full ? " dim" : "");
-      btn.dataset.w = w;
-      btn.textContent = w;
-      chipsEl.appendChild(btn);
-    });
-    loaded += BATCH;
-  }
-
-  function onScroll() {
-    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-    if (scrollTop + clientHeight >= scrollHeight - 200) loadMore();
-  }
-  window.addEventListener("scroll", onScroll, { passive: true });
-  // 화면 벗어날 때 리스너 정리
+  // 칩은 전체를 한 번에 렌더한다(161개, 가벼운 텍스트 버튼). 화면 벗어날 때 resize 리스너 정리.
   const cleanup = new MutationObserver(() => {
     if (!document.contains(chipsEl)) {
-      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", syncHeadPad);
       cleanup.disconnect();
     }
