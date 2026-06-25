@@ -481,7 +481,7 @@ export async function renderResult(app) {
             </div>
             <div style="flex:1">
               <div class="flip-title">숨은 매력, <span style="color:var(--primary)">${secondForm.name}</span></div>
-              <p class="flip-desc">겉으론 ${form.name}이지만, 친구들은 ${nick}님에게서 <b style="color:var(--ink)">${secondAxis}</b>의 반전 매력도 느꼈대요. ${secondForm.tagline} 같은 면이 살짝 숨어 있어요.</p>
+              <p class="flip-desc">겉으론 ${form.name}이지만, 친구들은 ${nick}님에게서 <b style="color:var(--ink)">${secondAxis}</b>의 반전 매력도 느꼈대요. "${secondForm.tagline}" 같은 면이 살짝 숨어 있어요.</p>
             </div>
           </div>`,
       }) : ""}
@@ -703,7 +703,7 @@ export async function renderSharedResult(app, slug) {
             </div>
             <div style="flex:1">
               <div class="flip-title">숨은 매력, <span style="color:var(--primary)">${secondForm.name}</span></div>
-              <p class="flip-desc">겉으론 ${form.name}이지만, 친구들은 ${nick}님에게서 <b style="color:var(--ink)">${secondAxis}</b>의 반전 매력도 느꼈대요. ${secondForm.tagline} 같은 면이 살짝 숨어 있어요.</p>
+              <p class="flip-desc">겉으론 ${form.name}이지만, 친구들은 ${nick}님에게서 <b style="color:var(--ink)">${secondAxis}</b>의 반전 매력도 느꼈대요. "${secondForm.tagline}" 같은 면이 살짝 숨어 있어요.</p>
             </div>
           </div>`,
       }) : ""}
